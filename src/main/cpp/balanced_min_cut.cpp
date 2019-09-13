@@ -1,5 +1,5 @@
-#include "balanced_min_cut.h"
-#include "adj_array.h"
+#include "balanced_min_cut.hpp"
+#include "adj_array.hpp"
 #include <metis.h>
 #include <cassert>
 
@@ -8,7 +8,7 @@ namespace cpd {
 // link with -lmetis
 // compile with -O3 -DNDEBUG
 
-std::vector<bool>balanced_min_cut(const ListGraph&g){
+std::vector<bool>balanced_min_cut(const datastructures::ListGraph& g){
 	assert(g.is_valid());
 
 	#ifndef USE_CUT_ORDER

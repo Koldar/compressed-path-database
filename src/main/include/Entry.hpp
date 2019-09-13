@@ -5,7 +5,7 @@
 #include "mapper.hpp"
 //#include "adj_graph.h"
 #include <warthog/constants.h>
-#include "types.h"
+#include "types.hpp"
 #include <cpp-utils/listGraph.hpp>
 #include <pathfinding-utils/types.hpp>
 #include <boost/filesystem.hpp>
@@ -16,12 +16,13 @@
 #include "dijkstra.hpp"
 #include <cpp-utils/Timer.hpp>
 #include <boost/filesystem.hpp>
+#include <cpp-utils/exceptions.hpp>
 
 namespace cpd {
 
 using namespace pathfinding;
 
-#define DIJKSTRA_PRINTF_EVERY_VERTEX 500
+#define DIJKSTRA_PRINTF_EVERY_VERTEX 1
 
 /**
  * @brief class allowing to interface with a cpd
@@ -40,6 +41,11 @@ private:
         // TODO REMOVE dpf::nodeid_t current_node;
         // dpf::nodeid_t target_node;
     };
+public:
+    friend std::ostream& operator <<(std::ostream& out, const CpdManager<G, V>& m) {
+        out << "{cpd path=" << m.cpdPath << ", context=" << (m.context != nullptr) ? "YES": "NO";
+        return out;
+    }
 private:
     /**
      * @brief represents the path where the cpd dealt with this class will be put/read
@@ -71,10 +77,15 @@ public:
      * @param g the graph to compress in the cpd
      */
     void saveCpd(const cpp_utils::graphs::ListGraph<G,V,cost_t>& g) const {
+        //check if ther file exists
+        if (boost::filesystem::exists(this->cpdPath)) {
+            return;
+        }
+
         debug("Computing node order");
 
         //use CPD datastructure to compute the order... I don't want to deal with it for now
-        cpd::datastructures::ListGraph cpdListGraph{fromCppUtilsListGraphToCpdListGraph(g)};
+        cpd::datastructures::ListGraph cpdListGraph{cpd::datastructures::fromCppUtilsListGraphToCpdListGraph(g)};
 #ifndef USE_CUT_ORDER
         //NodeOrdering order = compute_real_dfs_order(getListGraphFrom(map, mapper, MULTI_TERRAIN_STRATEGY));
         NodeOrdering order = compute_real_dfs_order(cpdListGraph);
@@ -86,8 +97,8 @@ public:
 #endif
 
         //convert to our datastructures
-        info("the order is ", order);
-        cpp_utils::graphs::AdjacentGraph<G,V,cost_t> reorderedGraph{g.reorderVertices(order.getToNewArray(), order.getToOldArray())};
+        //info("the order is ", order);
+        cpp_utils::graphs::AdjacentGraph<G, V, cost_t> reorderedGraph{*(g.reorderVertices(order.getToNewArray<nodeid_t>(), order.getToOldArray<nodeid_t>()))};
         //mapper.reorder(order);
 
 
@@ -107,7 +118,7 @@ public:
 
 #ifndef USE_PARALLELISM
             info("we're not going to use parallelism!");
-            Dijkstra<G, V> dij{g};
+            Dijkstra<G, V> dij{reorderedGraph};
             for(nodeid_t source_node=0; source_node < reorderedGraph.numberOfVertices(); ++source_node){
                 //progress bar
                 if((source_node % DIJKSTRA_PRINTF_EVERY_VERTEX) == 0) {
@@ -115,7 +126,7 @@ public:
                 }
 
                 debug("calling dijktstra on node", source_node, "!");
-                const auto&allowed = dij.run(source_node);
+                const auto& allowed = dij.run(source_node);
                 debug("appending on row");
                 cpd.append_row(source_node, allowed);
             }
@@ -174,9 +185,10 @@ public:
      * @param g the graph we want to load
      * @return std::unique_ptr<IImmutableGraph<G, V, cost_t>> a vertex permutation of @c g. all the other data remain unchanged
      */
-    const IImmutableGraph<G, V, cost_t>& loadCpd(const IImmutableGraph<V,G, cost_t>& g) {
+    const IImmutableGraph<G, V, cost_t>& loadCpd(const IImmutableGraph<G, V, cost_t>& g) {
         if (this->context != nullptr) {
-            throw cpp_utils::exceptions::InvalidStateException<CpdManager>{"another cpd has been already loaded!"};
+            error("another cpd has been already loaded!");
+            throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
         }
         this->context = new CpdContext;
 
@@ -192,7 +204,7 @@ public:
         this->context->cpd.load(f);
         fclose(f);
 
-        this->context->graph = cpp_utils::graphs::AdjacentGraph<G,V,cost_t>{g.reorderVertices(order.getToNewArray(), order.getToOldArray())};
+        this->context->graph = cpp_utils::graphs::AdjacentGraph<G, V, cost_t>{*(g.reorderVertices(order.getToNewArray<nodeid_t>(), order.getToOldArray<nodeid_t>()))};
         //TODO remove state->mapper.reorder(order);
 
         //TODO remove state->graph = AdjGraph(extract_graph(state->mapper));
@@ -200,21 +212,32 @@ public:
         info("Loading done");
         return this->context->graph;
     }
-    moveid_t getFirstMove(nodeid_t current, nodeid_t target, bool& finalMove, nodeid_t& nextNode) const {
-        if (this->context != nullptr) {
-            throw cpp_utils::exceptions::InvalidStateException<CpdManager>{"cpd not loaded yet!"};
+    /**
+     * @brief Get the First Move object
+     * 
+     * @param current the node in the graph you're in at the moment
+     * @param target the target you're aiming to
+     * @param firstMove the move the cpd tells you to perform. Set only if the return value is true
+     * @param nextNode the node you arriving to by applying the move from the cpd. 
+     * @return bool true if the cpd generated a move
+     */
+    bool getFirstMove(nodeid_t current, nodeid_t target, moveid_t& firstMove, nodeid_t& nextNode) const {
+        if (this->context == nullptr) {
+            error("cpd not loaded yet!");
+            throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
         }
-        auto firstMove = this->context->cpd.get_first_move(current, target);
-        info("from ", current, "to ", target, " the cpd says the best move is", firstMove);
-        if(firstMove == 0xF){
-            finalMove = true;
+        unsigned char move = this->context->cpd.get_first_move(current, target);
+        info("from ", current, "to ", target, " the cpd says the best move is", static_cast<unsigned int>(move));
+        if(move == 0xF) {
+            info("returning false");
+            return false;
         } else if(current == target) {
-            finalMove = true;
+            return false;
         } else {
-            finalMove = false;
-            nextNode = this->context->graph.getOutEdge(current, firstMove).getSinkId();
+            firstMove = move;
+            nextNode = this->context->graph.getOutEdge(current, move).getSinkId();
+            return true;
         }
-        return firstMove;
     }
     std::vector<nodeid_t> generateOptimalPathOfNodes(nodeid_t current, nodeid_t target) {
         std::vector<nodeid_t> result{};

@@ -6,14 +6,14 @@
  */
 
 
-#include "types.h"
-#include "log.h"
+#include "types.hpp"
+#include <cpp-utils/log.hpp>
 #include <cmath>
 
-std::ostream& operator<<(std::ostream& stream, const dpf::move_t& m) {
-	stream << static_cast<int>(m);
-	return stream;
-}
+// std::ostream& operator<<(std::ostream& stream, const dpf::move_t& m) {
+// 	stream << static_cast<int>(m);
+// 	return stream;
+// }
 
 
 //std::ostream& operator<<(std::ostream& stream, const long& l) {

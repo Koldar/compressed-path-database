@@ -11,7 +11,7 @@ set(THEPROJECT_VERSION 1.0)
 set(THEPROJECT_OUTPUT "SO")
 #a spaced separated list of shared libraries that will be used when linking the main project. Each library needs to be installed
 #on the system. Each library should be declared as a quoted string
-set(THEPROJECT_REQUIRED_SHARED_LIBRARIES "cpp-utils" "pathfinding-utils" "metis" "boost-filesystem" "m" "ld")
+set(THEPROJECT_REQUIRED_SHARED_LIBRARIES "cpp-utils" "pathfinding-utils" "metis" "boost_filesystem" "m" "dl")
 #a spaced separated list of additional shared libraries that will be used when linking the test application. Each library needs to be installed
 #ignore it if you put "THEPROJECT_TEST_ENABLE_TEST_COMPILATION" to "false" 
 set(THEPROJECT_TEST_ADDITIONAL_SHARED_LIBRARIES "")
@@ -26,7 +26,7 @@ set(THEPROJECT_POSITION_INDEPENDENT_CODE "true")
 #The log level of the debug build for this project.
 # Values go from 0(debug) till 7 (critical)
 #Can be overriden by using "cmake -U_DEBUG_LOG_LEVEL:STRING=<newvalue>" command  
-set(THEPROJECT_DEBUG_LOG_LEVEL "0")
+set(THEPROJECT_DEBUG_LOG_LEVEL "3")
 #put true if you have changed something inside this cmake standard building process; false otherwise
 set(STANDARD_CMAKE_FILE_ALTERED "false")
 #If you have altered the standard CMAKE file standard process, consider explaining in this variable what have you changed to help future maintainers!

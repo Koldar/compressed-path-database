@@ -5,10 +5,20 @@
  *      Author: koldar
  */
 
-#include "list_graph.h"
+#include "list_graph.hpp"
 
-#include "mapper.h"
+//#include "mapper.h"
 #include <functional>
+
+namespace std {
+
+size_t hash<cpd::datastructures::Arc>::operator()(const cpd::datastructures::Arc& k) const {
+	return k.hash();
+}
+
+}
+
+namespace cpd::datastructures {
 
 std::size_t Arc::hash() const {
 	std::hash<int> hasher;
@@ -16,40 +26,35 @@ std::size_t Arc::hash() const {
 	return hasher(this->source) + hasher(this->target) + hasher(this->weight);
 }
 
+// void ListGraph::print(const Mapper& mapper, const string& baseName) {
+// 	string dotFilename{baseName};
+// 	dotFilename += ".dot";
+// 	FILE* f = fopen(dotFilename.c_str(), "w");
+// 	if (f == NULL) {
+// 		throw CpdException{"file %s cannot be created!", dotFilename};
+// 	}
 
-std::size_t std::hash<Arc>::operator()(const Arc& k) const {
-	return k.hash();
+// 	fprintf(f, "graph {\n");
+// 	for (int i=0; i<n; ++i) {
+// 		//coordaintes in dot are in bottom left till top right
+// 		fprintf(f, "N%04d [label=\"%d\", pos=\"%d,-%d!\"];\n", i, i, mapper(i).x*3, mapper(i).y*3);
+// 	}
+
+// 	for (auto it = arc.begin(); it!= arc.end(); ++it) {
+// 		fprintf(f, "N%04d -- N%04d [label=\"%d\"];\n", it->source, it->target, it->weight);
+// 	}
+
+// 	fprintf(f, "}");
+
+// 	fclose(f);
+
+// 	std::stringstream ss;
+// 	ss << "dot -Kneato -Tsvg -o " << baseName << ".svg " << baseName << ".dot";
+// 	int errorCode = system(ss.str().c_str());
+// 	if (errorCode != 0) {
+// 		warning(ss.str(), "resulted in an error code of", errorCode, ". Continuing as nothing happened");
+// 	}
+// 	unlink(dotFilename.c_str());
+// }
+
 }
-
-void ListGraph::print(const Mapper& mapper, const string& baseName) {
-	string dotFilename{baseName};
-	dotFilename += ".dot";
-	FILE* f = fopen(dotFilename.c_str(), "w");
-	if (f == NULL) {
-		throw CpdException{"file %s cannot be created!", dotFilename};
-	}
-
-	fprintf(f, "graph {\n");
-	for (int i=0; i<n; ++i) {
-		//coordaintes in dot are in bottom left till top right
-		fprintf(f, "N%04d [label=\"%d\", pos=\"%d,-%d!\"];\n", i, i, mapper(i).x*3, mapper(i).y*3);
-	}
-
-	for (auto it = arc.begin(); it!= arc.end(); ++it) {
-		fprintf(f, "N%04d -- N%04d [label=\"%d\"];\n", it->source, it->target, it->weight);
-	}
-
-	fprintf(f, "}");
-
-	fclose(f);
-
-	std::stringstream ss;
-	ss << "dot -Kneato -Tsvg -o " << baseName << ".svg " << baseName << ".dot";
-	int errorCode = system(ss.str().c_str());
-	if (errorCode != 0) {
-		warning(ss.str(), "resulted in an error code of", errorCode, ". Continuing as nothing happened");
-	}
-	unlink(dotFilename.c_str());
-}
-
-

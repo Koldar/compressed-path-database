@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 #include <stack>
+#include <cpp-utils/serializers.hpp>
 
 // compile with -O3 -DNDEBUG
 
@@ -74,14 +75,14 @@ void NodeOrdering::load_range(int new_id_begin, const std::vector<int>&v){
 		to_new_array[to_old_array[i]] = i;
 }
 
-void NodeOrdering::save(std::FILE*f)const{
-	save_vector(f, to_new_array);
-	save_vector(f, to_old_array);
+void NodeOrdering::save(std::FILE*f) const {
+	cpp_utils::serializers::saveInFile<int>(f, to_new_array);
+	cpp_utils::serializers::saveInFile<int>(f, to_old_array);
 }
 
-void NodeOrdering::load(std::FILE*f){
-	to_new_array = load_vector<int>(f);
-	to_old_array = load_vector<int>(f);
+void NodeOrdering::load(std::FILE*f) {
+	cpp_utils::serializers::loadFromFile<int>(f, to_new_array);
+	cpp_utils::serializers::loadFromFile<int>(f, to_old_array);
 }
 
 bool operator==(const NodeOrdering&l, const NodeOrdering&r){
@@ -127,7 +128,7 @@ NodeOrdering compute_real_dfs_order(const cpd::datastructures::ListGraph& g){
 
 	build_adj_array(
 			out_begin, out_dest,
-			g.numberOfVertices(), g.arc.size(),
+			g.node_count(), g.arc.size(),
 			source_node, target_node
 	);
 

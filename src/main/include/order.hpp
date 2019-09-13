@@ -59,6 +59,24 @@ public:
 
 	}
 
+	template <typename NUM>
+	std::vector<NUM> getToNewArray() const {
+		std::vector<NUM> result{};
+		for (int i=0; i<this->to_new_array.size(); ++i) {
+			result.push_back(to_new_array[i]);
+		}
+		return result;
+	}
+
+	template <typename NUM>
+	std::vector<NUM> getToOldArray() const {
+		std::vector<NUM> result{};
+		for (int i=0; i<this->to_old_array.size(); ++i) {
+			result.push_back(to_old_array[i]);
+		}
+		return result;
+	}
+
 	const std::vector<int>& getToNewArray() const {
 		return to_new_array;
 	}

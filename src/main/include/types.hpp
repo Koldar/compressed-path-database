@@ -7,8 +7,8 @@
  *      Author: koldar
  */
 
-#ifndef TYPES_H_
-#define TYPES_H_
+#ifndef _COMPRESSED_PATH_DATABASES_TYPES_HEADER__
+#define _COMPRESSED_PATH_DATABASES_TYPES_HEADER__
 
 #include <cstdint>
 #include <iostream>

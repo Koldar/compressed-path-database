@@ -21,18 +21,20 @@ class AdjGraph;
 
 #include <vector>
 #include <functional>
-#include "list_graph.h"
-#include "range.h"
-#include "adj_array.h"
-#include "types.h"
-#include "xyLoc.h"
-#include "gridmap_path.h"
-#include "pbmImage.h"
-#include "gridmap.h"
-
+#include "list_graph.hpp"
+#include "range.hpp"
+#include "adj_array.hpp"
+#include "types.hpp"
+//TODO remove #include "xyLoc.h"
+//#include "gridmap_path.h"
+//#include "pbmImage.h"
+//#include "gridmap.h"
+#include <vector>
 #include <unordered_set>
 
 namespace cpd::datastructures {
+
+using namespace cpp_utils::graphs;
 
 /**
  * represents an arc which goes out froma vertex
@@ -123,13 +125,13 @@ public:
 	 * @param[in] v the vertex where arcs are going out
 	 * @return iterator from the first outgoing arc from vertex @c
 	 */
-	vector<OutArc>::const_iterator arcBegin(int v) const;
+	std::vector<OutArc>::const_iterator arcBegin(int v) const;
 
 	/**
 	 * @param[in] v the vertex where arcs are going out
 	 * @return iterator or the last outgoing arc from vertex @c
 	 */
-	vector<OutArc>::const_iterator arcEnd(int v) const;
+	std::vector<OutArc>::const_iterator arcEnd(int v) const;
 
 	/**
 	 * get the i-th out arc from vertex v
@@ -256,7 +258,7 @@ public:
 	 * @return true if the arcs is present in the graph
 	 *  @li false otherwise
 	 */
-	bool containsArc(dpf::nodeid_t source, dpf::nodeid_t sink) const;
+	bool containsArc(nodeid_t source, nodeid_t sink) const;
 
 	/**
 	 * check if the arc has been revised
@@ -293,7 +295,7 @@ public:
 	 *
 	 * @return the total number of arcs
 	 */
-	dpf::big_integer getTotalNumberOfArcs() const;
+	std::size_t getTotalNumberOfArcs() const;
 
 	/**
 	 * Compute the cost of a path
@@ -305,7 +307,7 @@ public:
 	 * @param[in] mapper the mapper used to convert locations into node ids
 	 * @return the cost of the path @c path
 	 */
-	dpf::cost_t getCostOfPath(const std::vector<xyLoc>& path, const Mapper& mapper) const;
+	//TODO remove cost_t getCostOfPath(const std::vector<xyLoc>& path, const Mapper& mapper) const;
 
 	/**
 	 * Get the arcs composing the path
@@ -316,7 +318,7 @@ public:
 	 * @param[in] mapper the mapper used to convert node id into locations
 	 * @return an ordered list of arc rpresenting the path
 	 */
-	vector<Arc> getArcsOverMap(const gridmap_path& path, const Mapper& mapper) const;
+	//TODO remove std::vector<Arc> getArcsOverMap(const gridmap_path& path, const Mapper& mapper) const;
 
 	/**
 	 * Get the number of arc in the given path that satisfy the given condition
@@ -329,7 +331,7 @@ public:
 	 * 	@li the third parameter is the arc itself
 	 * @return the number of arcs in @c path satisfiying @c filter
 	 */
-	dpf::big_integer getNumberOfArcsInPathSuchThat(const Mapper& mapper, const std::vector<xyLoc>& path, std::function<bool(dpf::big_integer i, dpf::nodeid_t, OutArc a)> filter) const;
+	//TODO remove std::size_t getNumberOfArcsInPathSuchThat(const Mapper& mapper, const std::vector<xyLoc>& path, std::function<bool(dpf::big_integer i, dpf::nodeid_t, OutArc a)> filter) const;
 
 	/**
 	 *
@@ -338,7 +340,7 @@ public:
 	 * @param[in] ratio the ratio involved
 	 * @return the number of arc represented by the ratio
 	 */
-	dpf::big_integer getNumberOfArcsFromRatio(double ratio) const;
+	//std::size_t getNumberOfArcsFromRatio(double ratio) const;
 
 	/**
 	 * Generate a SVG image representing the adjacence graph.
@@ -352,7 +354,7 @@ public:
 	 * @param[in] shouldPrintArc a lambda that tells if a specific arc should be printed. If nullptr we will print every arc
 	 * @param[in] colorArca lamda returning a string representing the color of an arc. If nullptr everything weill be printed with black
 	 */
-	void print(const Mapper& mapper, const string& baseName, std::function<bool(dpf::nodeid_t)>* shouldPrintNode=nullptr, std::function<bool(dpf::nodeid_t, OutArc)>* shouldPrintArc=nullptr, std::function<const string(dpf::nodeid_t, OutArc)>* colorArc=nullptr) const;
+	//TODO remove void print(const Mapper& mapper, const string& baseName, std::function<bool(dpf::nodeid_t)>* shouldPrintNode=nullptr, std::function<bool(dpf::nodeid_t, OutArc)>* shouldPrintArc=nullptr, std::function<const string(dpf::nodeid_t, OutArc)>* colorArc=nullptr) const;
 
 	/**
 	 * like ::AdjGraph::print but prints on the map a list of paths
@@ -361,16 +363,16 @@ public:
 	 * @param[in] baseName name of the image to generate (no extension)
 	 * @param[in] paths a vector fo paths to print out
 	 */
-	void printPaths(const Mapper& mapper, const string& baseName, const std::vector<gridmap_path>& paths) const;
+	//TODO remove void printPaths(const Mapper& mapper, const string& baseName, const std::vector<gridmap_path>& paths) const;
 
-	PPMImage getImageWith(const Mapper& mapper, const GridMap& map, const dpf::nodeid_t start, const dpf::nodeid_t goal, const std::vector<dpf::nodeid_t> expandedList, color_t expandedColor, color_t startColor=GREEN, color_t goalColor=BLUE, color_t perturbatedColor=RED, color_t backgroundColor=WHITE) const;
+	//TODO remove PPMImage getImageWith(const Mapper& mapper, const GridMap& map, const dpf::nodeid_t start, const dpf::nodeid_t goal, const std::vector<dpf::nodeid_t> expandedList, color_t expandedColor, color_t startColor=GREEN, color_t goalColor=BLUE, color_t perturbatedColor=RED, color_t backgroundColor=WHITE) const;
 
 	/**
 	 * @return all the weights such that at least one arc in the graph has
 	 */
-	std::unordered_set<int> getWeights() const;
+	//TODO remove std::unordered_set<int> getWeights() const;
 
-	const std::vector<OutArc>& getArcs() const;
+	//TODO remove const std::vector<OutArc>& getArcs() const;
 
 	/**
 	 * Save the current graph into a file
@@ -384,7 +386,7 @@ public:
 	 *
 	 * @param[in] f the file to save the graph into
 	 */
-	void save(FILE* f) const;
+	//void save(FILE* f) const;
 
 	/**
 	 * Load a graph from a file in the filesystem
@@ -397,7 +399,7 @@ public:
 	 * @param[in] f the file to read the graph from;
 	 * @return the graph loaded
 	 */
-	static AdjGraph load(FILE* f);
+	//static AdjGraph load(FILE* f);
 
 private:
 	/**

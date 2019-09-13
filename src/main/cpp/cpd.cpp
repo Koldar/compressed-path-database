@@ -1,10 +1,13 @@
-#include "cpd.h"
+#include "cpd.hpp"
 
 #include <fstream>
 #include <stdexcept>
 #include <cassert>
 
-#include "log.h"
+#include <cpp-utils/log.hpp>
+#include <cpp-utils/operators.hpp>
+
+namespace cpd {
 
 // compile with -O3 -DNDEBUG
 
@@ -85,3 +88,4 @@ void CPD::append_rows(const CPD&other){
 	std::copy(other.entry.begin(), other.entry.end(), back_inserter(entry));
 }
 
+}

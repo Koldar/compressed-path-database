@@ -20,7 +20,6 @@
 
 #include <iostream>
 #include <fstream>
-#include "types.h"
 #include <boost/filesystem.hpp>
 
 using namespace std;
@@ -523,128 +522,128 @@ const char *GetName() {
 // 		}
 // 	}
 // }
+//TODO remove
+// std::ostream & operator<<(std::ostream& str, const xyLoc& v) {
+// 	str << "{" << v.x << ", " << v.y << "}";
+// 	return str;
+// }
+//TODO REMOVE
+// bool operator==(const xyLoc& a, const xyLoc& b) {
+// 	return (a.x == b.x) && (a.y == b.y);
+// }
+// TODO remove
+// bool operator!=(const xyLoc& a, const xyLoc& b) {
+// 	return (a.x != b.x) || (a.y != b.y);
+// }
+// TODO remove
+// void drawMapWithPath(std::ostream& str, const std::vector<bool>& map, int width, int height, const std::vector<xyLoc>& path, char pathSymbol) {
+// 	char toPrint;
+// 	str << std::endl;
+// 	for (dpf::coo2d_t y=0; y<height; ++y) {
+// 		for (dpf::coo2d_t x=0; x<width; ++x) {
+//
+// 			//untraversable cell
+// 			if (!map[y*width+x]) {
+// 				toPrint = '@';
+// 				goto print;
+// 			}
+// 			//start location
+// 			if (path.front() == xyLoc{x, y}) {
+// 				toPrint = 'S';
+// 				goto print;
+// 			}
+//
+// 			//goal location
+// 			if (path.back() == xyLoc{x, y}) {
+// 				toPrint = 'G';
+// 				goto print;
+// 			}
 
-std::ostream & operator<<(std::ostream& str, const xyLoc& v) {
-	str << "{" << v.x << ", " << v.y << "}";
-	return str;
-}
+// 			//location in path
+// 			if (std::find(path.begin(), path.end(), xyLoc{x, y}) != path.end()){
+// 				toPrint = pathSymbol;
+// 				goto print;
+// 			}
 
-bool operator==(const xyLoc& a, const xyLoc& b) {
-	return (a.x == b.x) && (a.y == b.y);
-}
+// 			//traversable cell which is not involved in  anything
+// 			toPrint = '.';
 
-bool operator!=(const xyLoc& a, const xyLoc& b) {
-	return (a.x != b.x) || (a.y != b.y);
-}
-
-void drawMapWithPath(std::ostream& str, const std::vector<bool>& map, int width, int height, const std::vector<xyLoc>& path, char pathSymbol) {
-	char toPrint;
-	str << std::endl;
-	for (dpf::coo2d_t y=0; y<height; ++y) {
-		for (dpf::coo2d_t x=0; x<width; ++x) {
-
-			//untraversable cell
-			if (!map[y*width+x]) {
-				toPrint = '@';
-				goto print;
-			}
-			//start location
-			if (path.front() == xyLoc{x, y}) {
-				toPrint = 'S';
-				goto print;
-			}
-
-			//goal location
-			if (path.back() == xyLoc{x, y}) {
-				toPrint = 'G';
-				goto print;
-			}
-
-			//location in path
-			if (std::find(path.begin(), path.end(), xyLoc{x, y}) != path.end()){
-				toPrint = pathSymbol;
-				goto print;
-			}
-
-			//traversable cell which is not involved in  anything
-			toPrint = '.';
-
-			print:;
-			str << toPrint;
-		}
-		str << std::endl;
-	}
-
-
-}
-
-void printCPD(const char* mapName, const char* cpdFilename, xyLoc goal, const string& basename) {
-	MapLoader mp;
+// 			print:;
+// 			str << toPrint;
+// 		}
+// 		str << std::endl;
+// 	}
 
 
-	GridMap map = mp.LoadMap(mapName);
-	std::vector<bool> rawMap = map.getTraversableMask();
-	if (!isFileExists(cpdFilename)) {
-		PreprocessMap(map, cpdFilename);
-	}
+// }
 
-	State* cpdHelper = static_cast<State*>(PrepareForSearch(map, cpdFilename));
+// void printCPD(const char* mapName, const char* cpdFilename, xyLoc goal, const string& basename) {
+// 	MapLoader mp;
 
-	stringstream ss;
-	ss << basename << ".dot";
-	ofstream dotFile;
-	dotFile.open(ss.str(), std::ios::trunc | std::ios::out);
 
-	//x [shape="none", label=<<TABLE><TR><TD>a</TD><TD>a</TD></TR><TR><TD>a</TD><TD>a</TD></TR></TABLE>>];
-	dotFile << "graph {" << "\n"
-			<< "map [shape=\"none\", label=<<TABLE>";
+// 	GridMap map = mp.LoadMap(mapName);
+// 	std::vector<bool> rawMap = map.getTraversableMask();
+// 	if (!isFileExists(cpdFilename)) {
+// 		PreprocessMap(map, cpdFilename);
+// 	}
 
-	int goalid = cpdHelper->mapper(goal);
-	for (dpf::coo2d_t y=0; y<map.getHeight(); ++y) {
-		dotFile << "<TR>";
-		for (dpf::coo2d_t x=0; x<map.getWidth(); ++x) {
-			const char* label;
-			const char* color;
-			xyLoc source = xyLoc{x,y};
-			dpf::nodeid_t sourceid = cpdHelper->mapper(source);
+// 	State* cpdHelper = static_cast<State*>(PrepareForSearch(map, cpdFilename));
 
-			if (!rawMap[y*map.getWidth()+x]) {
-				//untraversable cell
-				label = "@";
-				color = "black";
-			} else if (source == goal) {
-				label = "GOAL";
-				color = "green";
-			} else {
-				debug("source =", source, "goal=", goal);
-				dpf::move_t first_move = cpdHelper->cpd.get_first_move(sourceid, goalid);
-				xyLoc sink = cpdHelper->mapper(const_cast<const AdjGraph&>(cpdHelper->graph).getIthOutArc(sourceid, first_move).target);
-				label = getLabel(xyLoc::getDirection(source, sink));
-				color = "white";
-			}
-			dotFile << "<TD BGCOLOR=\"" << color << "\">" << label << "</TD>";
-		}
-		dotFile << "</TR>";
-	}
+// 	stringstream ss;
+// 	ss << basename << ".dot";
+// 	ofstream dotFile;
+// 	dotFile.open(ss.str(), std::ios::trunc | std::ios::out);
 
-	dotFile << "</TABLE>>];" << "\n"
-			<< "}" << "\n";
+// 	//x [shape="none", label=<<TABLE><TR><TD>a</TD><TD>a</TD></TR><TR><TD>a</TD><TD>a</TD></TR></TABLE>>];
+// 	dotFile << "graph {" << "\n"
+// 			<< "map [shape=\"none\", label=<<TABLE>";
 
-	dotFile.close();
+// 	int goalid = cpdHelper->mapper(goal);
+// 	for (dpf::coo2d_t y=0; y<map.getHeight(); ++y) {
+// 		dotFile << "<TR>";
+// 		for (dpf::coo2d_t x=0; x<map.getWidth(); ++x) {
+// 			const char* label;
+// 			const char* color;
+// 			xyLoc source = xyLoc{x,y};
+// 			dpf::nodeid_t sourceid = cpdHelper->mapper(source);
 
-	ss.str(""); ss.clear();
-	ss << "dot -Tsvg -o " << basename << ".svg " << basename << ".dot";
-	int errorCode = system(ss.str().c_str());
-	if (errorCode != 0) {
-		warning(ss.str(), "resulted in an error code of", errorCode, ". Continuing as nothing happened");
-	}
+// 			if (!rawMap[y*map.getWidth()+x]) {
+// 				//untraversable cell
+// 				label = "@";
+// 				color = "black";
+// 			} else if (source == goal) {
+// 				label = "GOAL";
+// 				color = "green";
+// 			} else {
+// 				debug("source =", source, "goal=", goal);
+// 				dpf::move_t first_move = cpdHelper->cpd.get_first_move(sourceid, goalid);
+// 				xyLoc sink = cpdHelper->mapper(const_cast<const AdjGraph&>(cpdHelper->graph).getIthOutArc(sourceid, first_move).target);
+// 				label = getLabel(xyLoc::getDirection(source, sink));
+// 				color = "white";
+// 			}
+// 			dotFile << "<TD BGCOLOR=\"" << color << "\">" << label << "</TD>";
+// 		}
+// 		dotFile << "</TR>";
+// 	}
 
-	ss.str(""); ss.clear();
-	ss << basename << ".dot";
-	unlink(ss.str().c_str());
+// 	dotFile << "</TABLE>>];" << "\n"
+// 			<< "}" << "\n";
 
-	DeleteHelperOfSearch(cpdHelper);
-}
+// 	dotFile.close();
+
+// 	ss.str(""); ss.clear();
+// 	ss << "dot -Tsvg -o " << basename << ".svg " << basename << ".dot";
+// 	int errorCode = system(ss.str().c_str());
+// 	if (errorCode != 0) {
+// 		warning(ss.str(), "resulted in an error code of", errorCode, ". Continuing as nothing happened");
+// 	}
+
+// 	ss.str(""); ss.clear();
+// 	ss << basename << ".dot";
+// 	unlink(ss.str().c_str());
+
+// 	DeleteHelperOfSearch(cpdHelper);
+// }
 
 /**
  * like ::GetPathWithCPD but generates the cost of the path in the CPD as well
@@ -661,42 +660,42 @@ void printCPD(const char* mapName, const char* cpdFilename, xyLoc goal, const st
  *  @li true if we were able to find the optional path (thus @c path is altered);
  *  @li false if no path could be obtained (thus @c path is unchanged);
  */
-static bool GetPathInformationallAtOnceWithCPD(void* cpdHelper, xyLoc start, xyLoc goal, dpf::cost_t* pathCost, std::vector<dpf::move_t>* moves, std::vector<xyLoc>* path) {
-	State*state = static_cast<State*>(cpdHelper);
+// static bool GetPathInformationallAtOnceWithCPD(void* cpdHelper, xyLoc start, xyLoc goal, dpf::cost_t* pathCost, std::vector<dpf::move_t>* moves, std::vector<xyLoc>* path) {
+// 	State*state = static_cast<State*>(cpdHelper);
 
-	dpf::nodeid_t current_node = state->mapper(start);
-	dpf::nodeid_t target_node = state->mapper(goal);
+// 	dpf::nodeid_t current_node = state->mapper(start);
+// 	dpf::nodeid_t target_node = state->mapper(goal);
 
-	DO_IF_NOT_NULL(path) { path->clear(); }
-	DO_IF_NOT_NULL(moves) { moves->clear(); }
-	DO_IF_NOT_NULL(pathCost) { *pathCost = 0; }
+// 	DO_IF_NOT_NULL(path) { path->clear(); }
+// 	DO_IF_NOT_NULL(moves) { moves->clear(); }
+// 	DO_IF_NOT_NULL(pathCost) { *pathCost = 0; }
 
-	if (current_node == target_node) {
-		//the start is also the end
-		DO_IF_NOT_NULL(path) {path->push_back(state->mapper(current_node)); }
-		return true;
-	}
+// 	if (current_node == target_node) {
+// 		//the start is also the end
+// 		DO_IF_NOT_NULL(path) {path->push_back(state->mapper(current_node)); }
+// 		return true;
+// 	}
 
-	dpf::move_t first_move = state->cpd.get_first_move(current_node, target_node);
-	//debug("first move from ", state->mapper(current_node), " to ", state->mapper(target_node), " is going to ", state->mapper(state->graph.out(current_node, first_move).target));
+// 	dpf::move_t first_move = state->cpd.get_first_move(current_node, target_node);
+// 	//debug("first move from ", state->mapper(current_node), " to ", state->mapper(target_node), " is going to ", state->mapper(state->graph.out(current_node, first_move).target));
 
-	if(first_move == 0xF) {
-		return false;
-	}
+// 	if(first_move == 0xF) {
+// 		return false;
+// 	}
 
-	while (true) {
-		DO_IF_NOT_NULL(moves) { moves->push_back(first_move); debug("moves is ", *moves);}
-		DO_IF_NOT_NULL(path) { path->push_back(state->mapper(current_node)); }
-		DO_IF_NOT_NULL(pathCost) { *pathCost = *pathCost + state->graph.out(current_node, first_move).weight; }
-		current_node = state->graph.out(current_node, first_move).target;
-		if(current_node == target_node) {
-			break;
-		}
-		first_move = state->cpd.get_first_move(current_node, target_node);
-		//debug("first move from ", state->mapper(current_node), " to ", state->mapper(target_node), " is ", state->mapper(state->graph.out(current_node, first_move).target));
-	}
-	DO_IF_NOT_NULL(path) { path->push_back(goal); }
-	return true;
-}
+// 	while (true) {
+// 		DO_IF_NOT_NULL(moves) { moves->push_back(first_move); debug("moves is ", *moves);}
+// 		DO_IF_NOT_NULL(path) { path->push_back(state->mapper(current_node)); }
+// 		DO_IF_NOT_NULL(pathCost) { *pathCost = *pathCost + state->graph.out(current_node, first_move).weight; }
+// 		current_node = state->graph.out(current_node, first_move).target;
+// 		if(current_node == target_node) {
+// 			break;
+// 		}
+// 		first_move = state->cpd.get_first_move(current_node, target_node);
+// 		//debug("first move from ", state->mapper(current_node), " to ", state->mapper(target_node), " is ", state->mapper(state->graph.out(current_node, first_move).target));
+// 	}
+// 	DO_IF_NOT_NULL(path) { path->push_back(goal); }
+// 	return true;
+// }
 
 }

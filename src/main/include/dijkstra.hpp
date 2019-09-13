@@ -22,7 +22,7 @@ private:
 	 * @brief the graph where we need to run dijkstra over
 	 * 
 	 */
-	const AdjacentGraph<G,V,cost_t>& g;
+	const AdjacentGraph<G, V, cost_t>& g;
 	/**
 	 * @brief queue of dijkstra algorithm
 	 * 
@@ -45,7 +45,7 @@ private:
 	 */
 	std::vector<moveid_t> allowed;
 public:
-	Dijkstra(const AdjacentGraph<G,V,cost_t>& g): g{g}, q(g.node_count()), dist(g.node_count()), allowed(g.node_count()){
+	Dijkstra(const AdjacentGraph<G,V,cost_t>& g): g{g}, q(g.numberOfVertices()), dist(g.numberOfVertices()), allowed(g.numberOfVertices()) {
 
 	}
 
@@ -66,33 +66,43 @@ public:
 
 		auto reach = [&](nodeid_t v, cost_t d, moveid_t first_move){
 			if(d < dist[v]) {
+				info("we reached", v, "faster! It was", dist[v], "but now it is ", d);
 				q.pushOrDecrease(v, d);
 				dist[v] = d;
 				allowed[v] = first_move;
 			} else if(d == dist[v]) {
+				info("we reached", v, "as fast as before! It was", dist[v], "but also ", d);
 				allowed[v] |= first_move;
 			}
 		};
 
-		for(moveid_t i=0; i<g.out_deg(source_node); ++i){
-			auto a = g.out(source_node, i);
-			reach(a.target, a.weight, 1 << i);
+		for(moveid_t i=0; i<g.getOutDegree(source_node); ++i){
+			auto a = g.getOutEdge(source_node, i);
+			reach(a.getSinkId(), a.getPayload(), 1 << i);
 		}
 
 		while(!q.isEmpty()) {
-			int x = q.pop();
+			nodeid_t currentNode = q.pop();
+			info("popped from queue", currentNode, "distance", dist[currentNode]);
 
-			for(auto a: g.out(x)) {
-				reach(a.target, dist[x] + a.weight, allowed[x]);
+			for(moveid_t i=0; i<g.getOutDegree(currentNode); ++i) {
+				OutEdge<cost_t> outEdge = g.getOutEdge(currentNode, i);
+				reach(outEdge.getSinkId(), dist[currentNode] + outEdge.getPayload(), allowed[currentNode]);
 			}
 		}
 
 		DO_ON_DEBUG {
-			for(int u=0; u<g.node_count(); ++u) {
-				for(auto uv : g.out(u)) {
-					int v = uv.target;
-					if(!(dist[u] >= dist[v] - uv.weight)) {
-						error("source:", source_node, "u:", u, " v:", v, "dist[u] >= dist[v] - uv.weight (", dist[u], ">=", dist[v], "-", uv.weight);
+			for(nodeid_t u=0; u<g.numberOfVertices(); ++u) {
+				info("out degree of", u, "(", g.getVertex(u), ") is", g.getOutDegree(u));
+				for(moveid_t i=0; i<g.getOutDegree(u); ++i) {
+					OutEdge<cost_t> uv = g.getOutEdge(u, i);
+					nodeid_t v = uv.getSinkId();
+					cost_t uvCost = uv.getPayload();
+
+					info("source is ", source_node, "(", g.getVertex(source_node), ") edge from ", u, "(", g.getVertex(u), ") to", v, "(", g.getVertex(v), ") is", uvCost, "distance[", source_node, ", ", u, "]=", dist[u], "distance[", source_node, ", ", v, "]=", dist[v]);
+
+					if(!((dist[u] + uvCost) >= dist[v])) {
+						error("source:", source_node, "u:", u, " v:", v, "dist[u] + uv.weight >= dist[v] (", dist[u], "+", uvCost, ">=", dist[v], ")");
 						throw cpp_utils::exceptions::ImpossibleException{};
 					}
 				}

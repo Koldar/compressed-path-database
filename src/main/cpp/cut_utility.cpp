@@ -7,7 +7,7 @@
 
 namespace cpd {
 
-std::vector<bool>remove_isolated_nodes_from_cut(const ListGraph&g, std::vector<bool>is_in_cut){
+std::vector<bool>remove_isolated_nodes_from_cut(const datastructures::ListGraph& g, std::vector<bool>is_in_cut){
 	assert(g.is_valid());
 	assert(g.node_count() == (int)is_in_cut.size());
 

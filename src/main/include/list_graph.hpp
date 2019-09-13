@@ -9,7 +9,7 @@ class Mapper;
 #include <algorithm>
 #include <string>
 #include <cassert>
-#include "range.h"
+#include "range.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +31,9 @@ namespace cpd::datastructures {
  */
 struct Arc {
 public:
-	int source, target, weight;
+	int source;
+	int target;
+	int weight;
 
 	size_t hash() const;
 };
@@ -41,14 +43,14 @@ public:
 namespace std {
 
 	template <>
-	struct hash<Arc> {
+	struct hash<cpd::datastructures::Arc> {
 		/**
 		 * @note
 		 * Used to be able to use Arc in unordered_map as key
 		 *
 		 * @return hash value of the arc
 		 */
-		std::size_t operator()(const Arc& k) const;
+		std::size_t operator()(const cpd::datastructures::Arc& k) const;
 	};
 };
 
@@ -103,20 +105,22 @@ public:
 	/**
 	 * generates a totally empty graph
 	 */
-	ListGraph():n(0){}
+	ListGraph(): n{0} {
+
+	}
 	/**
 	 * generates a graph with a certain number of vertices
 	 *
 	 * @param[in] node_count the number of vertices the graph has
 	 */
-	explicit ListGraph(int node_count):n(node_count){}
+	explicit ListGraph(int node_count): n{node_count} {
 
-	
+	}
 
 	/**
 	 * @return the number of vertices in the graph
 	 */
-	int node_count()const{
+	int node_count() const {
 		return n;
 	}
 
@@ -131,7 +135,7 @@ public:
 	 *  @li true if the graph is valid,
 	 *  @li false otherwise
 	 */
-	bool is_valid()const{
+	bool is_valid() const {
 		bool ok = true;
 		for(auto a:arc){
 			ok &= (a.source != -1);
@@ -192,11 +196,15 @@ inline bool operator!=(const ListGraph&l, const ListGraph&r){
  */
 template <typename G, typename V>
 cpd::datastructures::ListGraph fromCppUtilsListGraphToCpdListGraph(const cpp_utils::graphs::ListGraph<G, V, pathfinding::cost_t>& g) {
-	cpd::datastructures::ListGraph result{g.numberOfVertices()};
+	cpd::datastructures::ListGraph result{static_cast<int>(g.numberOfVertices())};
 
 	for (cpp_utils::graphs::nodeid_t sourceId=0; sourceId<g.numberOfVertices(); ++sourceId) {
 		for (auto outEdge: g.getOutEdges(sourceId)) {
-			result.arc.push_back(Arc{sourceId, outEdge.getSinkId(), outEdge.getPayload()});
+			result.arc.push_back(Arc{
+				static_cast<int>(sourceId), 
+				static_cast<int>(outEdge.getSinkId()), 
+				static_cast<int>(outEdge.getPayload())
+			});
 		}
 	}
 

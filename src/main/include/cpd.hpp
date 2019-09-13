@@ -5,8 +5,9 @@
 #include <algorithm>
 #include <string>
 //#include "adj_graph.h"
-#include "binary_search.h"
-#include "range.h"
+#include "binary_search.hpp"
+#include "range.hpp"
+#include <cpp-utils/serializers.hpp>
 //#include "vec_io.h"
 
 namespace cpd {
@@ -53,14 +54,14 @@ public:
 		return l.begin == r.begin && l.entry == r.entry;
 	}
 
-	void save(std::FILE*f) const {
-		cpp_utils::saveVectorInFile(f, begin);
-		cpp_utils::saveVectorInFile(f, entry);
+	void save(std::FILE* f) const {
+		cpp_utils::serializers::saveInFile<int>(f, begin);
+		cpp_utils::serializers::saveInFile<int>(f, entry);
 	}
 
-	void load(std::FILE*f) {
-		begin = cpp_utils::loadVectorFrom<int>(f);
-		entry = cpp_utils::loadVectorFrom<int>(f);
+	void load(std::FILE* f) {
+		cpp_utils::serializers::loadFromFile<int>(f, begin);
+		cpp_utils::serializers::loadFromFile<int>(f, entry);
 	}
 
 private:

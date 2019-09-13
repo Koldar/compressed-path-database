@@ -1,5 +1,5 @@
-#include "prefer_zero_cut.h"
-#include "adj_array.h"
+#include "prefer_zero_cut.hpp"
+#include "adj_array.hpp"
 #include <stack>
 #include <utility>
 
@@ -7,7 +7,7 @@ namespace cpd {
 
 // compile with -O3 -DNDEBUG
 
-std::vector<bool> prefer_zero_cut(const ListGraph& g, std::function<std::vector<bool>(const ListGraph& g)>default_cutter) {
+std::vector<bool> prefer_zero_cut(const datastructures::ListGraph& g, std::function<std::vector<bool>(const datastructures::ListGraph& g)>default_cutter) {
 	std::vector<int>out_begin, out_dest;
 
 	build_adj_array(
