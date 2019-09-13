@@ -116,6 +116,66 @@ SCENARIO("test cpd") {
 			REQUIRE(manager.getFirstMove(startId, targetId, move, nextNode) == false);
 		}
 
+		WHEN("example of path") {
+			xyLoc target{4,4};
+			nodeid_t targetId = actualGraph.idOfVertex(target);
+
+			REQUIRE(manager.getFirstMove(actualGraph.idOfVertex(xyLoc{0,0}), targetId, move, nextNode) == true);
+			REQUIRE(actualGraph.getVertex(nextNode) == xyLoc{0,1});
+
+			REQUIRE(manager.getFirstMove(actualGraph.idOfVertex(xyLoc{0,1}), targetId, move, nextNode) == true);
+			REQUIRE(actualGraph.getVertex(nextNode) == xyLoc{0,2});
+			
+			REQUIRE(manager.getFirstMove(actualGraph.idOfVertex(xyLoc{0,2}), targetId, move, nextNode) == true);
+			REQUIRE(actualGraph.getVertex(nextNode) == xyLoc{1,3});
+
+			REQUIRE(manager.getFirstMove(actualGraph.idOfVertex(xyLoc{1,3}), targetId, move, nextNode) == true);
+			REQUIRE(actualGraph.getVertex(nextNode) == xyLoc{2,4});
+
+			REQUIRE(manager.getFirstMove(actualGraph.idOfVertex(xyLoc{2,4}), targetId, move, nextNode) == true);
+			REQUIRE(actualGraph.getVertex(nextNode) == xyLoc{3,4});
+
+			REQUIRE(manager.getFirstMove(actualGraph.idOfVertex(xyLoc{3,4}), targetId, move, nextNode) == true);
+			REQUIRE(actualGraph.getVertex(nextNode) == xyLoc{4,4});
+		}
+
+		WHEN("testing whole path when target is source") {
+			xyLoc start{0,0};
+			xyLoc target{0,0};
+			nodeid_t startId = actualGraph.idOfVertex(start);
+			nodeid_t targetId = actualGraph.idOfVertex(target);
+
+			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{0});
+		}
+
+		WHEN("testing whole path when target is below from source") {
+			xyLoc start{0,0};
+			xyLoc target{0,1};
+			nodeid_t startId = actualGraph.idOfVertex(start);
+			nodeid_t targetId = actualGraph.idOfVertex(target);
+
+			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{0, 1});
+		}
+
+		WHEN("testing whole path when target is unreachable") {
+			xyLoc start{0,0};
+			xyLoc target{4,2};
+			nodeid_t startId = actualGraph.idOfVertex(start);
+			nodeid_t targetId = actualGraph.idOfVertex(target);
+
+			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{});
+		}
+
+		WHEN("testing whole path when target is far from source") {
+			xyLoc start{0,0};
+			xyLoc target{4,4};
+			nodeid_t startId = actualGraph.idOfVertex(start);
+			nodeid_t targetId = actualGraph.idOfVertex(target);
+
+			actualGraph.saveBMP("cpdgraph");
+			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{0, 1, 2, 6, 15, 16, 17});
+		}
+
 	}
 }
 

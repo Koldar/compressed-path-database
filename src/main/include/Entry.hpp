@@ -43,7 +43,7 @@ private:
     };
 public:
     friend std::ostream& operator <<(std::ostream& out, const CpdManager<G, V>& m) {
-        out << "{cpd path=" << m.cpdPath << ", context=" << (m.context != nullptr) ? "YES": "NO";
+        out << "{cpd path=" << m.cpdPath << ", context=" << ((m.context != nullptr) ? "YES": "NO") << "}";
         return out;
     }
 private:
@@ -249,24 +249,30 @@ public:
         this->generateOptimalPath(current, target, nullptr, &result, nullptr);
         return result;
     }
-    cost_t generateOptimalPathCost(nodeid_t current, nodeid_t target, cost_t) {
+    cost_t generateOptimalPathCost(nodeid_t current, nodeid_t target) {
         cost_t result;
         this->generateOptimalPath(current, target, nullptr, nullptr, &result);
         return result;
     }
     void generateOptimalPath(nodeid_t current, nodeid_t target, std::vector<nodeid_t>* nodes, std::vector<moveid_t>* moves, cost_t* cost) {
-        if (this->context != nullptr) {
-            throw cpp_utils::exceptions::InvalidStateException<CpdManager>{"cpd not loaded yet!"};
+        if (this->context == nullptr) {
+            throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
         }
-	    moveid_t firstMove = this->context->cpd.get_first_move(current, target);
-        if(firstMove == 0xF) {
-            //current == target
+
+        if (current == target) {
+            //we have already reached the target
             if (nodes != nullptr) {
                 nodes->push_back(current);
             }
             if (cost != nullptr) {
                 *cost = 0;
             }
+            return;
+        }
+
+	    moveid_t firstMove = this->context->cpd.get_first_move(current, target);
+        if(firstMove == 0xF) {
+            //no move available
             return;
         } 
         // current != target
@@ -287,6 +293,13 @@ public:
             current = outEdge.getSinkId();
 
             if(current == target) {
+                //add target
+                if (nodes != nullptr) {
+                    nodes->push_back(current);
+                }
+                if (moves != nullptr) {
+                    moves->push_back(firstMove);
+                }
                 return;
             }
             firstMove = this->context->cpd.get_first_move(current, target);
