@@ -273,6 +273,9 @@ public:
 	    moveid_t firstMove = this->context->cpd.get_first_move(current, target);
         if(firstMove == 0xF) {
             //no move available
+            if (cost != nullptr) {
+                *cost = cost_t::INFTY;
+            }    
             return;
         } 
         // current != target

@@ -146,6 +146,7 @@ SCENARIO("test cpd") {
 			nodeid_t targetId = actualGraph.idOfVertex(target);
 
 			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{0});
+			REQUIRE(manager.generateOptimalPathCost(startId, targetId) == 0);
 		}
 
 		WHEN("testing whole path when target is below from source") {
@@ -155,6 +156,7 @@ SCENARIO("test cpd") {
 			nodeid_t targetId = actualGraph.idOfVertex(target);
 
 			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{0, 1});
+			REQUIRE(manager.generateOptimalPathCost(startId, targetId) == 100);
 		}
 
 		WHEN("testing whole path when target is unreachable") {
@@ -164,6 +166,7 @@ SCENARIO("test cpd") {
 			nodeid_t targetId = actualGraph.idOfVertex(target);
 
 			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{});
+			REQUIRE(manager.generateOptimalPathCost(startId, targetId) == cost_t::INFTY);
 		}
 
 		WHEN("testing whole path when target is far from source") {
@@ -174,6 +177,7 @@ SCENARIO("test cpd") {
 
 			actualGraph.saveBMP("cpdgraph");
 			REQUIRE(manager.generateOptimalPathOfNodes(startId, targetId) == std::vector<nodeid_t>{0, 1, 2, 6, 15, 16, 17});
+			REQUIRE(manager.generateOptimalPathCost(startId, targetId) == (2* 141 + 4*100));
 		}
 
 	}
