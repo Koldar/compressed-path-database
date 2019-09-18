@@ -1,1 +1,8 @@
+#Eclipse CDT
 Debug/
+.cproject
+.project
+.settings/
+
+# VISUAL STUDIO CODE
+.vscode/
