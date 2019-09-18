@@ -17,6 +17,7 @@
 #include <cpp-utils/Timer.hpp>
 #include <boost/filesystem.hpp>
 #include <cpp-utils/exceptions.hpp>
+#include <cpp-utils/imemory.hpp>
 
 namespace cpd {
 
@@ -29,7 +30,7 @@ using namespace pathfinding;
  * 
  */
 template <typename G, typename V>
-class CpdManager {
+class CpdManager: public cpp_utils::IMemorable {
 private:
     /**
      * A state used when searchinf for the optimal path in a static CPD
@@ -54,14 +55,71 @@ private:
     boost::filesystem::path cpdPath;
     CpdContext* context;
 public:
+    /**
+     * @brief construct a new cpd manager
+     * 
+     * This manager will immediately try to load the CPD from the given file.
+     * If the file do not exist, it will create the CPD itself (so the developer do not need to call saveCpd).
+     * 
+     * @note
+     * Note that, while this construct does everythign by itself, you won't be in control on when the cpd
+     * is actually built. Since cpd construction is CPU-intensive, you need to be careful to use this constructor in performance watched function since maybe the constructor decides to build the CPD there!
+     * 
+     * @param cpdPath the path where the cpd will be saved
+     * @param g the graph used to buld/load the cpd
+     */
+    CpdManager(const boost::filesystem::path& cpdPath, const IImmutableGraph<G, V, cost_t>& g): cpdPath{cpdPath}, context{nullptr} {
+        this->saveCpd(g);
+        this->loadCpd(g);
+    }
+    /**
+     * @brief creates a new manager
+     * 
+     * The develop is required to manually call (after this construct) both:
+     * @li saveCpd to create the cpd;
+     * @li loadCpd to fetch the reordered graph
+     * 
+     * @param cpdPath the path where the cpd will be positioned in the file system
+     */
     CpdManager(const boost::filesystem::path& cpdPath): cpdPath{cpdPath}, context{nullptr} {
 
     }
+    //I don't want that the manager is copied
+    CpdManager(const CpdManager& manager) = delete;
+    //I don't want that the manager is copied
+    CpdManager& operator =(const CpdManager& manager) = delete;
     ~CpdManager() {
         if (context != nullptr) {
             delete context;
         }
     }
+    /**
+     * @brief True if loadCpd has already been called
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool isCpdLoaded() const {
+        return this->context != nullptr;
+    }
+
+    /**
+     * @brief Get the Reordered Graph object
+     * 
+     * @pre
+     *  @li loadCpD needs to have been called at least once (or in alternative you had to call the constructor with 2 arguments)
+     * 
+     * @return const IImmutableGraph<G, V, cost_t>& 
+     */
+    const IImmutableGraph<G, V, cost_t>& getReorderedGraph() const {
+        return this->context->graph;
+    }
+
+    /**
+     * @brief 
+     * 
+     * @param g 
+     */
     void saveCpd(const cpp_utils::graphs::IImmutableGraph<G,V,cost_t>& g) const {
         this->saveCpd(cpp_utils::graphs::ListGraph<G,V,cost_t>{g});
     }
@@ -179,16 +237,16 @@ public:
     /**
      * @brief load a cpd from the given file
      * 
-     * @pre
-     *  @li the manager hasn't load a cpd yet
+     * @note
+     * The function will concretely load the cpd if it has been called for the first time, otherwise
+     * it will just yield the reordered graph
      * 
      * @param g the graph we want to load
-     * @return std::unique_ptr<IImmutableGraph<G, V, cost_t>> a vertex permutation of @c g. all the other data remain unchanged
+     * @return IImmutableGraph<G, V, cost_t> a vertex permutation of @c g. all the other data remain unchanged
      */
     const IImmutableGraph<G, V, cost_t>& loadCpd(const IImmutableGraph<G, V, cost_t>& g) {
         if (this->context != nullptr) {
-            error("another cpd has been already loaded!");
-            throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
+            return this->context->graph;
         }
         this->context = new CpdContext;
 
@@ -221,7 +279,7 @@ public:
      * @param nextNode the node you arriving to by applying the move from the cpd. 
      * @return bool true if the cpd generated a move
      */
-    bool getFirstMove(nodeid_t current, nodeid_t target, moveid_t& firstMove, nodeid_t& nextNode) const {
+    bool getFirstMove(nodeid_t current, nodeid_t target, moveid_t& firstMove, nodeid_t& nextNode, cost_t& moveCost) const {
         if (this->context == nullptr) {
             error("cpd not loaded yet!");
             throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
@@ -235,26 +293,28 @@ public:
             return false;
         } else {
             firstMove = move;
-            nextNode = this->context->graph.getOutEdge(current, move).getSinkId();
+            const OutEdge<cost_t> outEdge = this->context->graph.getOutEdge(current, move); 
+            nextNode = outEdge.getSinkId();
+            moveCost = outEdge.getPayload();
             return true;
         }
     }
-    std::vector<nodeid_t> generateOptimalPathOfNodes(nodeid_t current, nodeid_t target) {
+    std::vector<nodeid_t> generateOptimalPathOfNodes(nodeid_t current, nodeid_t target) const {
         std::vector<nodeid_t> result{};
         this->generateOptimalPath(current, target, &result, nullptr, nullptr);
         return result;
     }
-    std::vector<moveid_t> generateOptimalPathOfMoves(nodeid_t current, nodeid_t target) {
+    std::vector<moveid_t> generateOptimalPathOfMoves(nodeid_t current, nodeid_t target) const {
         std::vector<moveid_t> result{};
         this->generateOptimalPath(current, target, nullptr, &result, nullptr);
         return result;
     }
-    cost_t generateOptimalPathCost(nodeid_t current, nodeid_t target) {
+    cost_t generateOptimalPathCost(nodeid_t current, nodeid_t target) const {
         cost_t result;
         this->generateOptimalPath(current, target, nullptr, nullptr, &result);
         return result;
     }
-    void generateOptimalPath(nodeid_t current, nodeid_t target, std::vector<nodeid_t>* nodes, std::vector<moveid_t>* moves, cost_t* cost) {
+    void generateOptimalPath(nodeid_t current, nodeid_t target, std::vector<nodeid_t>* nodes, std::vector<moveid_t>* moves, cost_t* cost) const {
         if (this->context == nullptr) {
             throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
         }
@@ -308,6 +368,18 @@ public:
             firstMove = this->context->cpd.get_first_move(current, target);
 
         }
+    }
+public:
+    virtual cpp_utils::MemoryConsumption getByteMemoryOccupied() const {
+        cpp_utils::MemoryConsumption result;
+        result += sizeof(*this);
+        result += this->cpdPath.size();
+        if (this->context != nullptr) {
+            result += sizeof(*this->context);
+            result += this->context->cpd.getByteMemoryOccupied();
+            result += this->context->graph.getByteMemoryOccupied();
+        }
+        return result;
     }
 
 };

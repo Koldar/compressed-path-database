@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <assert.h>
-#include "Entry.hpp"
+#include "CpdManager.hpp"
 
 #include "list_graph.hpp"
 #include "mapper.hpp"
@@ -15,7 +15,6 @@
 #include <cstdio>
 #include <stdlib.h>
 #include <unistd.h>
-#include "file_utils.h"
 #include "cut_order.hpp"
 
 #include <iostream>
