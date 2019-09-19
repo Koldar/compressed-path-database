@@ -18,6 +18,7 @@
 #include <boost/filesystem.hpp>
 #include <cpp-utils/exceptions.hpp>
 #include <cpp-utils/imemory.hpp>
+#include <cpp-utils/vectorplus.hpp>
 
 namespace cpd {
 

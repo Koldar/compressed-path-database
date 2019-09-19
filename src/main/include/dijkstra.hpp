@@ -101,7 +101,7 @@ public:
 
 					info("source is ", source_node, "(", g.getVertex(source_node), ") edge from ", u, "(", g.getVertex(u), ") to", v, "(", g.getVertex(v), ") is", uvCost, "distance[", source_node, ", ", u, "]=", dist[u], "distance[", source_node, ", ", v, "]=", dist[v]);
 
-					if(!((dist[u] + uvCost) >= dist[v])) {
+					if(!((dist[u] + uvCost).greaterOrEqualThan(dist[v]))) {
 						error("source:", source_node, "u:", u, " v:", v, "dist[u] + uv.weight >= dist[v] (", dist[u], "+", uvCost, ">=", dist[v], ")");
 						throw cpp_utils::exceptions::ImpossibleException{};
 					}
