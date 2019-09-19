@@ -299,13 +299,21 @@ public:
             return true;
         }
     }
-    std::vector<nodeid_t> generateOptimalPathOfNodes(nodeid_t current, nodeid_t target) const {
-        std::vector<nodeid_t> result{};
+
+    cpp_utils::vectorplus<nodeid_t> generateOptimalPathOfNodes(nodeid_t current, nodeid_t target) const {
+        cpp_utils::vectorplus<nodeid_t> result{};
         this->generateOptimalPath(current, target, &result, nullptr, nullptr);
         return result;
     }
-    std::vector<moveid_t> generateOptimalPathOfMoves(nodeid_t current, nodeid_t target) const {
-        std::vector<moveid_t> result{};
+    /**
+     * @brief get the moves we need to sequentially perform from @c current till @c target
+     * 
+     * @param current the source node
+     * @param target the target node we need to reach
+     * @return std::vector<moveid_t> a vector containing all the moves we need to perform to go to @c target
+     */
+    cpp_utils::vectorplus<moveid_t> generateOptimalPathOfMoves(nodeid_t current, nodeid_t target) const {
+        cpp_utils::vectorplus<moveid_t> result{};
         this->generateOptimalPath(current, target, nullptr, &result, nullptr);
         return result;
     }
