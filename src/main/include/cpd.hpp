@@ -44,6 +44,18 @@ namespace cpd {
 
 		}
 
+		CPD(const CPD& other) = delete;
+		CPD(CPD&& other): begin{std::move(other.begin)}, entry{std::move(other.entry)} {
+
+		}
+
+		CPD& operator =(const CPD& other) = delete;
+		CPD& operator =(CPD&& other) {
+			this->begin = std::move(other.begin);
+			this->entry = std::move(other.entry);
+			return *this;
+		}
+
 		//! Adds a new node s to the CPD. first_move should be an array that 
 		//! maps every target node onto a 15-bit bitfield that has a bit set
 		//! for every valid first move. get_first_move is free to return any of

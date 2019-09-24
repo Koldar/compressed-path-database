@@ -42,6 +42,23 @@ private:
         cpp_utils::graphs::AdjacentGraph<G,V, cost_t> graph;
         // TODO REMOVE dpf::nodeid_t current_node;
         // dpf::nodeid_t target_node;
+        CpdContext() {
+
+        }
+        CpdContext(const CpdContext& other) = delete;
+        CpdContext(CpdContext&& other): graph{std::move(other.graph)}, cpd{std::move(other.cpd)} {
+
+        }
+        CpdContext& operator =(const CpdContext& other) {
+            this->cpd = std::move(other.cpd);
+            this->graph = std::move(other.graph);
+            return *this;
+        }
+        CpdContext& operator =(CpdContext&& other) {
+            this->cpd = std::move(other.cpd);
+            this->graph = std::move(other.graph);
+            return *this;
+        }
     };
 public:
     friend std::ostream& operator <<(std::ostream& out, const CpdManager<G, V>& m) {
@@ -87,8 +104,16 @@ public:
     }
     //I don't want that the manager is copied
     CpdManager(const CpdManager& manager) = delete;
-    //I don't want that the manager is copied
+    CpdManager(CpdManager&& manager): cpdPath{std::move(cpdPath)}, context{context} {
+
+    }
     CpdManager& operator =(const CpdManager& manager) = delete;
+    CpdManager& operator =(CpdManager&& manager) {
+        this->cpdPath = std::move(manager.cpdPath);
+        this->context = manager.context;
+        manager.context = nullptr;
+        return *this;
+    }
     ~CpdManager() {
         if (context != nullptr) {
             delete context;
