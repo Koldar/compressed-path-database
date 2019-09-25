@@ -55,6 +55,9 @@ namespace cpd {
 			this->entry = std::move(other.entry);
 			return *this;
 		}
+		~CPD() {
+			critical("destroying CPD at ", this);
+		}
 
 		//! Adds a new node s to the CPD. first_move should be an array that 
 		//! maps every target node onto a 15-bit bitfield that has a bit set

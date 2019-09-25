@@ -45,15 +45,14 @@ private:
         CpdContext() {
 
         }
+        ~CpdContext() {
+            critical("destroying CpdContext at ", this);
+        }
         CpdContext(const CpdContext& other) = delete;
         CpdContext(CpdContext&& other): graph{std::move(other.graph)}, cpd{std::move(other.cpd)} {
 
         }
-        CpdContext& operator =(const CpdContext& other) {
-            this->cpd = std::move(other.cpd);
-            this->graph = std::move(other.graph);
-            return *this;
-        }
+        CpdContext& operator =(const CpdContext& other) = delete;
         CpdContext& operator =(CpdContext&& other) {
             this->cpd = std::move(other.cpd);
             this->graph = std::move(other.graph);
@@ -104,8 +103,8 @@ public:
     }
     //I don't want that the manager is copied
     CpdManager(const CpdManager& manager) = delete;
-    CpdManager(CpdManager&& manager): cpdPath{std::move(cpdPath)}, context{context} {
-
+    CpdManager(CpdManager&& manager): cpdPath{std::move(manager.cpdPath)}, context{manager.context} {
+        manager.context = nullptr;
     }
     CpdManager& operator =(const CpdManager& manager) = delete;
     CpdManager& operator =(CpdManager&& manager) {
@@ -115,7 +114,9 @@ public:
         return *this;
     }
     ~CpdManager() {
+        critical("destroying CpdManager at ", this);
         if (context != nullptr) {
+            critical("destroying CpdManager with context at ", this);
             delete context;
         }
     }
