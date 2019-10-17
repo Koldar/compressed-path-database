@@ -1,7 +1,7 @@
 // #ifndef MAPPER_H
 // #define MAPPER_H
 
-// namespace cpd::datastructures {
+// namespace compressed_path_database::datastructures {
 
 // class Mapper;
 
@@ -15,7 +15,7 @@
 // #include <cpp-utils/log.hpp>
 // #include <functional>
 
-// namespace cpd::datastructures {
+// namespace compressed_path_database::datastructures {
 
 // /**
 //  * A mapper is data structure allowing you to create mapping between

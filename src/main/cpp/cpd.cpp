@@ -7,7 +7,7 @@
 #include <cpp-utils/log.hpp>
 #include <cpp-utils/operators.hpp>
 
-namespace cpd {
+namespace compressed_path_database {
 
 // compile with -O3 -DNDEBUG
 

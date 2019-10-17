@@ -6,13 +6,13 @@
 #include <vector>
 #include <functional>
 
-namespace cpd {
+namespace compressed_path_database {
 
-std::vector<bool> prefer_zero_cut(const cpd::datastructures::ListGraph& g, std::function<std::vector<bool>(const cpd::datastructures::ListGraph& g)>);
+std::vector<bool> prefer_zero_cut(const compressed_path_database::datastructures::ListGraph& g, std::function<std::vector<bool>(const compressed_path_database::datastructures::ListGraph& g)>);
 
 template<class F>
 struct PreferZeroCutFunc {
-	std::vector<bool>operator()(const cpd::datastructures::ListGraph& g) const {
+	std::vector<bool>operator()(const compressed_path_database::datastructures::ListGraph& g) const {
 		return prefer_zero_cut(g, default_cutter);
 	}
 

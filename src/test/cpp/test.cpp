@@ -19,7 +19,7 @@
 #include <pathfinding-utils/GridBranching.hpp>
 #include <pathfinding-utils/MovingAIGridMapReader.hpp>
 
-using namespace cpd;
+using namespace compressed_path_database;
 using namespace pathfinding;
 using namespace cpp_utils;
 

@@ -3,7 +3,7 @@
 #include <stack>
 #include <utility>
 
-namespace cpd {
+namespace compressed_path_database {
 
 // compile with -O3 -DNDEBUG
 

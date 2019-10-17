@@ -4,9 +4,9 @@
 #include "list_graph.hpp"
 #include <vector>
 
-namespace cpd {
+namespace compressed_path_database {
 
-std::vector<bool> balanced_min_cut(const cpd::datastructures::ListGraph& g);
+std::vector<bool> balanced_min_cut(const compressed_path_database::datastructures::ListGraph& g);
 
 }
 

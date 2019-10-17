@@ -1,5 +1,5 @@
-#ifndef LIST_GRAPH_H
-#define LIST_GRAPH_H
+#ifndef _COMPRESSED_PATH_DATABASE_LIST_GRAPH_HEADER__
+#define _COMPRESSED_PATH_DATABASE_LIST_GRAPH_HEADER__
 
 struct Arc;
 struct ListGraph;
@@ -20,7 +20,7 @@ class Mapper;
 #include <cpp-utils/igraph.hpp>
 #include <pathfinding-utils/types.hpp>
 
-namespace cpd::datastructures {
+namespace compressed_path_database::datastructures {
 
 /**
  * represents an arc in the graph.
@@ -43,18 +43,18 @@ public:
 namespace std {
 
 	template <>
-	struct hash<cpd::datastructures::Arc> {
+	struct hash<compressed_path_database::datastructures::Arc> {
 		/**
 		 * @note
 		 * Used to be able to use Arc in unordered_map as key
 		 *
 		 * @return hash value of the arc
 		 */
-		std::size_t operator()(const cpd::datastructures::Arc& k) const;
+		std::size_t operator()(const compressed_path_database::datastructures::Arc& k) const;
 	};
 };
 
-namespace cpd::datastructures {
+namespace compressed_path_database::datastructures {
 
 /**
  * check if 2 arcs are the same
@@ -192,11 +192,11 @@ inline bool operator!=(const ListGraph&l, const ListGraph&r){
  * @tparam G payload of list graph
  * @tparam V payload of each vertex in the graph
  * @param g graph to convert
- * @return cpd::datastructures::ListGraph 
+ * @return compressed_path_database::datastructures::ListGraph 
  */
 template <typename G, typename V>
-cpd::datastructures::ListGraph fromCppUtilsListGraphToCpdListGraph(const cpp_utils::graphs::ListGraph<G, V, pathfinding::cost_t>& g) {
-	cpd::datastructures::ListGraph result{static_cast<int>(g.numberOfVertices())};
+compressed_path_database::datastructures::ListGraph fromCppUtilsListGraphToCpdListGraph(const cpp_utils::graphs::ListGraph<G, V, pathfinding::cost_t>& g) {
+	compressed_path_database::datastructures::ListGraph result{static_cast<int>(g.numberOfVertices())};
 
 	for (cpp_utils::graphs::nodeid_t sourceId=0; sourceId<g.numberOfVertices(); ++sourceId) {
 		for (auto outEdge: g.getOutEdges(sourceId)) {

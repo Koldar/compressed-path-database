@@ -1,7 +1,7 @@
-#ifndef ORDER_H
-#define ORDER_H
+#ifndef _COMPRESSED_PATH_DATABASE_ORDER_HEADER__
+#define _COMPRESSED_PATH_DATABASE_ORDER_HEADER__
 
-namespace cpd {
+namespace compressed_path_database {
 
 class NodeOrdering;
 
@@ -16,7 +16,7 @@ class NodeOrdering;
 #include <utility>
 #include <stdexcept>
 
-namespace cpd {
+namespace compressed_path_database {
 
 /**
  * represents a mapping between 2 index systems
@@ -162,7 +162,7 @@ bool operator!=(const NodeOrdering&l, const NodeOrdering&r){
 	return !(l == r);
 }
 
-NodeOrdering compute_real_dfs_order(const cpd::datastructures::ListGraph &g);
+NodeOrdering compute_real_dfs_order(const compressed_path_database::datastructures::ListGraph &g);
 
 }
 

@@ -13,7 +13,7 @@
 #ifndef ADJ_GRAPH_H
 #define ADJ_GRAPH_H
 
-namespace cpd::datastructures {
+namespace compressed_path_database::datastructures {
 
 class AdjGraph;
 
@@ -32,7 +32,7 @@ class AdjGraph;
 #include <vector>
 #include <unordered_set>
 
-namespace cpd::datastructures {
+namespace compressed_path_database::datastructures {
 
 using namespace cpp_utils::graphs;
 

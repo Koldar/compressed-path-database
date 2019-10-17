@@ -17,11 +17,11 @@
 #include <vector>
 #include "list_graph.hpp"
 
-namespace cpd {
+namespace compressed_path_database {
 
 template<class CutAlgo>
 void compute_cut_order(
-	int id_begin, const cpd::datastructures::ListGraph& g, const std::vector<int>& g_to_top_level, const CutAlgo& algo, NodeOrdering& order,
+	int id_begin, const compressed_path_database::datastructures::ListGraph& g, const std::vector<int>& g_to_top_level, const CutAlgo& algo, NodeOrdering& order,
 	std::vector<int>& lower_deg,
 	std::vector<int>& higher_deg
 ){
@@ -69,7 +69,7 @@ void compute_cut_order(
 			lower_to_top_level,
 			higher_to_top_level;
 
-		cpd::datastructures::ListGraph
+		compressed_path_database::datastructures::ListGraph
 			lower = extract_node_induced_subgraph(g, g_to_top_level, [&](int x){return is_lower[x];}, lower_to_top_level),
 			higher = extract_node_induced_subgraph(g, g_to_top_level, [&](int x){return !is_lower[x];}, higher_to_top_level);
 
@@ -89,7 +89,7 @@ void compute_cut_order(
 }
 
 template<class CutAlgo>
-NodeOrdering compute_cut_order(const cpd::datastructures::ListGraph&g, const CutAlgo&algo){
+NodeOrdering compute_cut_order(const compressed_path_database::datastructures::ListGraph&g, const CutAlgo&algo){
 	NodeOrdering order(g.node_count());
 	std::vector<int>higher_deg(g.node_count(), 0), lower_deg(g.node_count(), 0);
 

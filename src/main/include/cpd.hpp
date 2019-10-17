@@ -11,7 +11,7 @@
 #include <cpp-utils/imemory.hpp>
 //#include "vec_io.h"
 
-namespace cpd {
+namespace compressed_path_database {
 
 	//! Compressed Path database. Allows to quickly query the first out arc id of
 	//! any shortest source-target-path. There may be at most 15 outgoing arcs for
@@ -93,8 +93,8 @@ namespace cpd {
 		}
 
 		void save(std::FILE* f) const {
-			cpp_utils::serializers::saveInFile<int>(f, begin);
-			cpp_utils::serializers::saveInFile<int>(f, entry);
+			cpp_utils::serializers::saveToFile<int>(f, begin);
+			cpp_utils::serializers::saveToFile<int>(f, entry);
 		}
 
 		void load(std::FILE* f) {

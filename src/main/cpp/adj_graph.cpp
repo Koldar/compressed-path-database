@@ -12,7 +12,7 @@
 #include <cpp-utils/log.hpp>
 //#include "log.h"
 
-namespace cpd::datastructures {
+namespace compressed_path_database::datastructures {
 
 bool OutArc::hasBeenPerturbated() const {
 	return this->perturbated;

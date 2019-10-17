@@ -12,13 +12,13 @@
 
 namespace std {
 
-size_t hash<cpd::datastructures::Arc>::operator()(const cpd::datastructures::Arc& k) const {
+size_t hash<compressed_path_database::datastructures::Arc>::operator()(const compressed_path_database::datastructures::Arc& k) const {
 	return k.hash();
 }
 
 }
 
-namespace cpd::datastructures {
+namespace compressed_path_database::datastructures {
 
 std::size_t Arc::hash() const {
 	std::hash<int> hasher;

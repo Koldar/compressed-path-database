@@ -23,7 +23,7 @@
 
 using namespace std;
 
-namespace cpd {
+namespace compressed_path_database {
 
 
 // TOODO remove static bool GetPathInformationallAtOnceWithCPD(void* cpdHelper, xyLoc start, xyLoc goal, dpf::cost_t* pathCost, std::vector<dpf::move_t>* moves, std::vector<xyLoc>* path);

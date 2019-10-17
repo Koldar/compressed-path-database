@@ -2,7 +2,7 @@
 // #include <cstdio>
 // using namespace std;
 
-// namespace cpd::datastructures {
+// namespace compressed_path_database::datastructures {
 
 // Mapper::Mapper(const std::vector<bool>&field, int width, int height):
 // 				width_(width),

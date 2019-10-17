@@ -3,7 +3,7 @@
 #include <metis.h>
 #include <cassert>
 
-namespace cpd {
+namespace compressed_path_database {
 
 // link with -lmetis
 // compile with -O3 -DNDEBUG

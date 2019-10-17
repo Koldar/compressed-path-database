@@ -5,7 +5,7 @@
 
 // compile with -O3 -DNDEBUG
 
-namespace cpd {
+namespace compressed_path_database {
 
 std::vector<bool>remove_isolated_nodes_from_cut(const datastructures::ListGraph& g, std::vector<bool>is_in_cut){
 	assert(g.is_valid());
