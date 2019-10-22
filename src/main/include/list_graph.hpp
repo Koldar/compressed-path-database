@@ -19,6 +19,8 @@ class Mapper;
 #include <functional>
 #include <cpp-utils/igraph.hpp>
 #include <pathfinding-utils/types.hpp>
+#include <cpp-utils/adjacentGraph.hpp>
+#include <cpp-utils/listGraph.hpp>
 
 namespace compressed_path_database::datastructures {
 
@@ -198,15 +200,66 @@ template <typename G, typename V>
 compressed_path_database::datastructures::ListGraph fromCppUtilsListGraphToCpdListGraph(const cpp_utils::graphs::ListGraph<G, V, pathfinding::cost_t>& g) {
 	compressed_path_database::datastructures::ListGraph result{static_cast<int>(g.numberOfVertices())};
 
-	for (cpp_utils::graphs::nodeid_t sourceId=0; sourceId<g.numberOfVertices(); ++sourceId) {
-		for (auto outEdge: g.getOutEdges(sourceId)) {
-			result.arc.push_back(Arc{
-				static_cast<int>(sourceId), 
-				static_cast<int>(outEdge.getSinkId()), 
-				static_cast<int>(outEdge.getPayload())
-			});
+	cpp_utils::graphs::nodeid_t previousVertex = 0;
+	for (auto it=g.beginEdges(); it!=g.endEdges(); ++it) {
+		if (it->getSourceId() < previousVertex) {
+			throw cpp_utils::exceptions::ImpossibleException{};
 		}
+		previousVertex = it->getSourceId();
+		pathfinding::cost_t cost = it->getPayload();
+		result.arc.push_back(Arc{
+			static_cast<int>(it->getSourceId()), 
+			static_cast<int>(it->getSinkId()), 
+			static_cast<int>(cost)
+		});
 	}
+	// for (cpp_utils::graphs::nodeid_t sourceId=0; sourceId<g.numberOfVertices(); ++sourceId) {
+	// 	for (auto outEdge: g.getOutEdges(sourceId)) {
+	// 		result.arc.push_back(Arc{
+	// 			static_cast<int>(sourceId), 
+	// 			static_cast<int>(outEdge.getSinkId()), 
+	// 			static_cast<int>(outEdge.getPayload())
+	// 		});
+	// 	}
+	// }
+
+	return result;
+}
+
+/**
+ * @brief convert cpp utils list graph into cpd list graph
+ * 
+ * @tparam G payload of list graph
+ * @tparam V payload of each vertex in the graph
+ * @param g graph to convert
+ * @return compressed_path_database::datastructures::ListGraph 
+ */
+template <typename G, typename V>
+compressed_path_database::datastructures::ListGraph fromCppUtilsAdjacentGraphToCpdListGraph(const cpp_utils::graphs::AdjacentGraph<G, V, pathfinding::cost_t>& g) {
+	compressed_path_database::datastructures::ListGraph result{static_cast<int>(g.numberOfVertices())};
+
+	cpp_utils::graphs::nodeid_t previousVertex = 0;
+	for (auto it=g.beginEdges(); it!=g.endEdges(); ++it) {
+		if (it->getSourceId() < previousVertex) {
+			throw cpp_utils::exceptions::ImpossibleException{};
+		}
+		previousVertex = it->getSourceId();
+		pathfinding::cost_t cost = it->getPayload();
+		result.arc.push_back(Arc{
+			static_cast<int>(it->getSourceId()), 
+			static_cast<int>(it->getSinkId()), 
+			static_cast<int>(cost)
+		});
+	}
+	// for (cpp_utils::graphs::nodeid_t sourceId=0; sourceId<g.numberOfVertices(); ++sourceId) {
+	// 	for (auto outEdge: g.getOutEdges(sourceId)) {
+	// 		result.arc.push_back(Arc{
+	// 			static_cast<int>(sourceId), 
+	// 			static_cast<int>(outEdge.getSinkId()), 
+	// 			static_cast<int>(outEdge.getPayload())
+	// 		});
+	// 	}
+	// }
 
 	return result;
 }

@@ -66,12 +66,12 @@ namespace compressed_path_database {
 
 			auto reach = [&](nodeid_t v, cost_t d, moveid_t first_move){
 				if(d < dist[v]) {
-					info("we reached", v, "faster! It was", dist[v], "but now it is ", d);
+					debug("we reached", v, "faster! It was", dist[v], "but now it is ", d);
 					q.pushOrDecrease(v, d);
 					dist[v] = d;
 					allowed[v] = first_move;
 				} else if(d == dist[v]) {
-					info("we reached", v, "as fast as before! It was", dist[v], "but also ", d);
+					debug("we reached", v, "as fast as before! It was", dist[v], "but also ", d);
 					allowed[v] |= first_move;
 				}
 			};
@@ -83,7 +83,7 @@ namespace compressed_path_database {
 
 			while(!q.isEmpty()) {
 				nodeid_t currentNode = q.pop();
-				info("popped from queue", currentNode, "distance", dist[currentNode]);
+				debug("popped from queue", currentNode, "distance", dist[currentNode]);
 
 				for(moveid_t i=0; i<g.getOutDegree(currentNode); ++i) {
 					OutEdge<cost_t> outEdge = g.getOutEdge(currentNode, i);
@@ -93,13 +93,13 @@ namespace compressed_path_database {
 
 			DO_ON_DEBUG {
 				for(nodeid_t u=0; u<g.numberOfVertices(); ++u) {
-					info("out degree of", u, "(", g.getVertex(u), ") is", g.getOutDegree(u));
+					finest("out degree of", u, "(", g.getVertex(u), ") is", g.getOutDegree(u));
 					for(moveid_t i=0; i<g.getOutDegree(u); ++i) {
 						OutEdge<cost_t> uv = g.getOutEdge(u, i);
 						nodeid_t v = uv.getSinkId();
 						cost_t uvCost = uv.getPayload();
 
-						info("source is ", source_node, "(", g.getVertex(source_node), ") edge from ", u, "(", g.getVertex(u), ") to", v, "(", g.getVertex(v), ") is", uvCost, "distance[", source_node, ", ", u, "]=", dist[u], "distance[", source_node, ", ", v, "]=", dist[v]);
+						finest("source is ", source_node, "(", g.getVertex(source_node), ") edge from ", u, "(", g.getVertex(u), ") to", v, "(", g.getVertex(v), ") is", uvCost, "distance[", source_node, ", ", u, "]=", dist[u], "distance[", source_node, ", ", v, "]=", dist[v]);
 
 						if(!((dist[u] + uvCost).greaterOrEqualThan(dist[v]))) {
 							error("source:", source_node, "u:", u, " v:", v, "dist[u] + uv.weight >= dist[v] (", dist[u], "+", uvCost, ">=", dist[v], ")");

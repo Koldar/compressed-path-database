@@ -47,7 +47,9 @@ SCENARIO("test cpd") {
 		*/
 
 		maps::GridMapGraphConverter converter{maps::GridBranching::EIGHT_CONNECTED};
+		critical("fetching the map...");
 		graphs::AdjacentGraph<std::string, xyLoc, cost_t> graph{*converter.toGraph(map)};
+		critical("map fetched");
 		// auto image = graph.getPPM(); //TODO create unique_pointer
 		// image->savePNG("square03-image");
 		// delete image;

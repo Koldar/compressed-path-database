@@ -11,7 +11,7 @@ set(THEPROJECT_VERSION 1.0)
 set(THEPROJECT_OUTPUT "SO")
 #a spaced separated list of shared libraries that will be used when linking the main project. Each library needs to be installed
 #on the system. Each library should be declared as a quoted string
-set(THEPROJECT_REQUIRED_SHARED_LIBRARIES "cpp-utils" "pathfinding-utils" "metis" "boost_filesystem" "m" "dl")
+set(THEPROJECT_REQUIRED_SHARED_LIBRARIES "cpp-utils" "pathfinding-utils" "metis" "boost_filesystem" "gomp" "m" "dl")
 #a spaced separated list of additional shared libraries that will be used when linking the test application. Each library needs to be installed
 #ignore it if you put "THEPROJECT_TEST_ENABLE_TEST_COMPILATION" to "false" 
 set(THEPROJECT_TEST_ADDITIONAL_SHARED_LIBRARIES "")
@@ -149,6 +149,9 @@ if(PARENTDIR STREQUAL "Debug")
     #-fno-stack-protector: to debug stack smashing (https://stackoverflow.com/a/1347464/1887602)
     add_definitions(-DQUICK_LOG=${THEPROJECT_DEBUG_LOG_LEVEL} -DDEBUG -fno-stack-protector )
 endif(PARENTDIR STREQUAL "Debug")
+
+#ENABLE PARALLELISM
+add_definitions(-DUSE_PARALLELISM -fopenmp)
 #add common definitions
 #I perfer fmax-errors=1 instead of -Wfatal-errors becuase the second won't show the compiler notes of the error, but the first will
 add_definitions(-fmax-errors=1 -std=c++11 -Werror)

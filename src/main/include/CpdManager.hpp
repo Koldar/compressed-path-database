@@ -19,6 +19,7 @@
 #include <cpp-utils/exceptions.hpp>
 #include <cpp-utils/imemory.hpp>
 #include <cpp-utils/vectorplus.hpp>
+#include <omp.h>
 
 namespace compressed_path_database {
 
@@ -148,7 +149,7 @@ namespace compressed_path_database {
          * @param g 
          */
         void saveCpd(const cpp_utils::graphs::IImmutableGraph<G,V,cost_t>& g) const {
-            this->saveCpd(cpp_utils::graphs::ListGraph<G,V,cost_t>{g});
+            this->saveCpd(cpp_utils::graphs::AdjacentGraph<G,V,cost_t>{g});
         }
         /**
          * @brief generate the cpd of the given map and saves it in the given path
@@ -161,29 +162,31 @@ namespace compressed_path_database {
          * 
          * @param g the graph to compress in the cpd
          */
-        void saveCpd(const cpp_utils::graphs::ListGraph<G,V,cost_t>& g) const {
+        void saveCpd(const cpp_utils::graphs::AdjacentGraph<G,V,cost_t>& g) const {
             //check if ther file exists
             if (boost::filesystem::exists(this->cpdPath)) {
                 return;
             }
-
+            critical("We have been asked to compute a CPD! We will save such structure in", this->cpdPath.string());
             debug("Computing node order");
 
             //use CPD datastructure to compute the order... I don't want to deal with it for now
-            compressed_path_database::datastructures::ListGraph cpdListGraph{compressed_path_database::datastructures::fromCppUtilsListGraphToCpdListGraph(g)};
-    #ifndef USE_CUT_ORDER
-            //NodeOrdering order = compute_real_dfs_order(getListGraphFrom(map, mapper, MULTI_TERRAIN_STRATEGY));
-            NodeOrdering order = compute_real_dfs_order(cpdListGraph);
-    #else
-            NodeOrdering order = compute_cut_order(
-                    cpdListGraph,
-                    prefer_zero_cut(balanced_min_cut)
-            );
-    #endif
+            compressed_path_database::datastructures::ListGraph cpdListGraph{compressed_path_database::datastructures::fromCppUtilsAdjacentGraphToCpdListGraph(g)};
+            #ifndef USE_CUT_ORDER
+                //NodeOrdering order = compute_real_dfs_order(getListGraphFrom(map, mapper, MULTI_TERRAIN_STRATEGY));
+                NodeOrdering order = compute_real_dfs_order(cpdListGraph);
+            #else
+                NodeOrdering order = compute_cut_order(
+                        cpdListGraph,
+                        prefer_zero_cut(balanced_min_cut)
+                );
+            #endif
 
             //convert to our datastructures
             //info("the order is ", order);
+            critical("reordering graph");
             cpp_utils::graphs::AdjacentGraph<G, V, cost_t> reorderedGraph{*(g.reorderVertices(order.getToNewArray<cpp_utils::graphs::nodeid_t>(), order.getToOldArray<cpp_utils::graphs::nodeid_t>()))};
+            critical("done reordering graph");
             //mapper.reorder(order);
 
 
@@ -198,59 +201,63 @@ namespace compressed_path_database {
                     t.start();
                     dij.run(0);
                     t.stop();
-                    info("Estimated sequential running time:", (t.getElapsedMicroSeconds() * reorderedGraph.numberOfVertices()).toMinutes());
+                    critical("Estimated sequential running time:", (t.getElapsedMicroSeconds() * reorderedGraph.numberOfVertices()).toMinutes());
                 }
 
-    #ifndef USE_PARALLELISM
-                info("we're not going to use parallelism!");
-                Dijkstra<G, V> dij{reorderedGraph};
-                for(nodeid_t source_node=0; source_node < reorderedGraph.numberOfVertices(); ++source_node){
-                    //progress bar
-                    if((source_node % DIJKSTRA_PRINTF_EVERY_VERTEX) == 0) {
-                        info(((source_node*100.0)/reorderedGraph.numberOfVertices()), "done");
+                #ifndef USE_PARALLELISM
+                    info("we're not going to use parallelism!");
+                    Dijkstra<G, V> dij{reorderedGraph};
+                    for(nodeid_t source_node=0; source_node < reorderedGraph.numberOfVertices(); ++source_node){
+                        //progress bar
+                        if((source_node % DIJKSTRA_PRINTF_EVERY_VERTEX) == 0) {
+                            info(((source_node*100.0)/reorderedGraph.numberOfVertices()), "done");
+                        }
+
+                        debug("calling dijktstra on node", source_node, "!");
+                        const auto& allowed = dij.run(source_node);
+                        debug("appending on row");
+                        cpd.append_row(source_node, allowed);
                     }
+                #else
+                    info("Using", omp_get_max_threads(), "threads");
+                    std::vector<CPD> thread_cpd(omp_get_max_threads());
 
-                    debug("calling dijktstra on node", source_node, "!");
-                    const auto& allowed = dij.run(source_node);
-                    debug("appending on row");
-                    cpd.append_row(source_node, allowed);
-                }
-    #else
-                info("Using", omp_get_max_threads(), "threads");
-                vector<CPD> thread_cpd(omp_get_max_threads());
+                    int progress = 0;
 
-                int progress = 0;
+                    #pragma omp parallel
+                    {
+                        const int thread_count = omp_get_num_threads();
+                        const int thread_id = omp_get_thread_num();
+                        const int node_count = reorderedGraph.numberOfVertices();
 
-    #pragma omp parallel
-                {
-                    const int thread_count = omp_get_num_threads();
-                    const int thread_id = omp_get_thread_num();
-                    const int node_count = reorderedGraph.numberOfVertices();
+                        nodeid_t node_begin = (node_count*thread_id) / thread_count;
+                        nodeid_t node_end = (node_count*(thread_id+1)) / thread_count;
 
-                    nodeid_t node_begin = (node_count*thread_id) / thread_count;
-                    nodeid_t node_end = (node_count*(thread_id+1)) / thread_count;
-
-                    //TODO remove AdjGraph thread_adj_g(g);
-                    AdjacentGraph<G,V,cost_t> threadAdjacentGraph{reorderedGraph};
-                    Dijkstra thread_dij{threadAdjacentGraph};
-
-                    for(nodeid_t source_node=node_begin; source_node < node_end; ++source_node){
-                        thread_cpd[thread_id].append_row(source_node, thread_dij.run(source_node));
-    #pragma omp critical
+                        #pragma omp critical
                         {
-                            ++progress;
-                            if((progress % DIJKSTRA_PRINTF_EVERY_VERTEX) == 0){
-                                info(((progress*100.0)/reorderedGraph.numberOfVertices()), "done");
-                                fflush(stdout);
+                            info("thread: ", thread_id, "node_begin", node_begin, "node_end", node_end, "node_being as nodeid_t", node_begin, "as int", (int)node_begin);
+                        }
+
+                        AdjacentGraph<G,V,cost_t> threadAdjacentGraph{reorderedGraph};
+                        Dijkstra<G, V> thread_dij{threadAdjacentGraph};
+
+                        for(nodeid_t source_node=node_begin; source_node < node_end; ++source_node) {
+                            thread_cpd[thread_id].append_row(source_node, thread_dij.run(source_node));
+                            #pragma omp critical
+                            {
+                                ++progress;
+                                if((progress % DIJKSTRA_PRINTF_EVERY_VERTEX) == 0) {
+                                    info(((progress*100.0)/threadAdjacentGraph.numberOfVertices()), "done");
+                                    fflush(stdout);
+                                }
                             }
                         }
                     }
-                }
 
-                for(auto& x : thread_cpd) {
-                    cpd.append_rows(x);
-                }
-    #endif
+                    for(auto& x : thread_cpd) {
+                        cpd.append_rows(x);
+                    }
+                #endif
             }
 
             info("Saving data to", cpdPath);
@@ -258,7 +265,7 @@ namespace compressed_path_database {
             order.save(f);
             cpd.save(f);
             fclose(f);
-            info("done");
+            critical("CPD correctle saved into", cpdPath);
         }
 
         /**
