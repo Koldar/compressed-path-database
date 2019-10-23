@@ -46,7 +46,7 @@ namespace compressed_path_database {
             CpdContext() {
 
             }
-            ~CpdContext() {
+            virtual ~CpdContext() {
                 critical("destroying CpdContext at ", this);
             }
             CpdContext(const CpdContext& other) = delete;
@@ -114,7 +114,7 @@ namespace compressed_path_database {
             manager.context = nullptr;
             return *this;
         }
-        ~CpdManager() {
+        virtual ~CpdManager() {
             critical("destroying CpdManager at ", this);
             if (context != nullptr) {
                 critical("destroying CpdManager with context at ", this);

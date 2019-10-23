@@ -55,7 +55,7 @@ namespace compressed_path_database {
 			this->entry = std::move(other.entry);
 			return *this;
 		}
-		~CPD() {
+		virtual ~CPD() {
 			critical("destroying CPD at ", this);
 		}
 

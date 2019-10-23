@@ -167,7 +167,7 @@ public:
 
 	}
 
-	~ExpandedColorPrinter() {
+	virtual ~ExpandedColorPrinter() {
 
 	}
 
