@@ -315,7 +315,7 @@ namespace compressed_path_database {
          */
         bool getFirstMove(cpp_utils::graphs::nodeid_t current, cpp_utils::graphs::nodeid_t target, cpp_utils::graphs::moveid_t& firstMove, cpp_utils::graphs::nodeid_t& nextNode, cost_t& moveCost) const {
             if (this->context == nullptr) {
-                error("cpd not loaded yet!");
+                log_error("cpd not loaded yet!");
                 throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
             }
             unsigned char move = this->context->cpd.get_first_move(current, target);

@@ -132,7 +132,7 @@ OutArc& AdjGraph::getIthOutArc(int v, int i) {
 const OutArc& AdjGraph::getIthOutArc(int v, int i) const{
 	DO_ON_DEBUG {
 		if (this->out_deg(v) == 0) {
-			error("the vertex", v, "has not outgoing edges");
+			log_error("the vertex", v, "has not outgoing edges");
 			throw std::domain_error{"vertex has no outgoing edges"};
 		}
 	}
