@@ -15,8 +15,10 @@ namespace compressed_path_database {
 	using namespace cpp_utils::graphs;
 	using namespace pathfinding;
 
+	//TODO deprecated. Use DijkstraAlgorithm from pathfinding-utils instead
 	template <typename G, typename V>
 	class Dijkstra {
+		using This = Dijkstra<G, V>;
 	private:
 		/**
 		 * @brief the graph where we need to run dijkstra over
@@ -48,6 +50,28 @@ namespace compressed_path_database {
 		Dijkstra(const AdjacentGraph<G,V,cost_t>& g): g{g}, q(g.numberOfVertices()), dist(g.numberOfVertices()), allowed(g.numberOfVertices()) {
 
 		}
+		virtual ~Dijkstra() {
+
+		}
+		Dijkstra(const This& o): g{o.g}, q(o.q), dist(o.dist), allowed(o.allowed) {
+
+		}
+		Dijkstra(This&& o): g{::std::move(o.g)}, q{::std::move(o.q)}, dist{::std::move(o.dist)}, allowed{::std::move(o.allowed)} {
+
+		}
+		This& operator =(const This& o) {
+			this->q = o.q;
+			this->dist = o.dist;
+			this->allowed = o.allowed;
+			return *this;
+		}
+		This& operator =(This&& o) {
+			this->q = ::std::move(o.q);
+			this->dist = ::std::move(o.dist);
+			this->allowed = ::std::move(o.allowed);
+			return *this;
+		}
+	public:
 
 		/**
 		 * execute dijkstra algorithm
