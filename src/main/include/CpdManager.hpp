@@ -47,7 +47,6 @@ namespace compressed_path_database {
 
             }
             virtual ~CpdContext() {
-                critical("destroying CpdContext at ", this);
             }
             CpdContext(const CpdContext& other) = delete;
             CpdContext(CpdContext&& other): graph{std::move(other.graph)}, cpd{std::move(other.cpd)} {
@@ -115,9 +114,7 @@ namespace compressed_path_database {
             return *this;
         }
         virtual ~CpdManager() {
-            critical("destroying CpdManager at ", this);
             if (context != nullptr) {
-                critical("destroying CpdManager with context at ", this);
                 delete context;
             }
         }
@@ -265,7 +262,7 @@ namespace compressed_path_database {
             order.save(f);
             cpd.save(f);
             fclose(f);
-            critical("CPD correctle saved into", cpdPath);
+            critical("CPD correctly saved into", cpdPath);
         }
 
         /**
