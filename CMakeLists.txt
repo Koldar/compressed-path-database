@@ -11,7 +11,7 @@ set(THEPROJECT_VERSION 1.0)
 set(THEPROJECT_OUTPUT "SO")
 #a spaced separated list of shared libraries that will be used when linking the main project. Each library needs to be installed
 #on the system. Each library should be declared as a quoted string
-set(THEPROJECT_REQUIRED_SHARED_LIBRARIES "cpp-utils" "pathfinding-utils" "metis" "boost_filesystem" "gomp" "m" "dl")
+set(THEPROJECT_REQUIRED_SHARED_LIBRARIES "cpp-utils" "pathfinding-utils" "metis" "boost_system" "boost_filesystem" "gomp" "m" "dl")
 #a spaced separated list of additional shared libraries that will be used when linking the test application. Each library needs to be installed
 #ignore it if you put "THEPROJECT_TEST_ENABLE_TEST_COMPILATION" to "false" 
 set(THEPROJECT_TEST_ADDITIONAL_SHARED_LIBRARIES "")
