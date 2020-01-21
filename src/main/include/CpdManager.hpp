@@ -316,7 +316,7 @@ namespace compressed_path_database {
                 throw cpp_utils::exceptions::InvalidStateException<CpdManager>{*this};
             }
             unsigned char move = this->context->cpd.get_first_move(current, target);
-            info("from ", current, "to ", target, " the cpd says the best move is", static_cast<unsigned int>(move));
+            finest("from ", current, "to ", target, " the cpd says the best move is", static_cast<unsigned int>(move));
             if(move == 0xF) {
                 info("returning false");
                 return false;

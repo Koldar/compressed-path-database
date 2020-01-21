@@ -56,7 +56,7 @@ namespace compressed_path_database {
 			return *this;
 		}
 		virtual ~CPD() {
-			critical("destroying CPD at ", this);
+			debug("destroying CPD at ", this);
 		}
 
 		//! Adds a new node s to the CPD. first_move should be an array that 
