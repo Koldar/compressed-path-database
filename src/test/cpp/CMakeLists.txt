@@ -1,12 +1,35 @@
 set(TEST_NAME "${THEPROJECT_NAME}Test")
 
-#include in the build all the content inside the directory
-include_directories("../include")
-include_directories("../../main/include")
+# HANDLE CPP FILES
 
 #you might want to add the sources via the following command: set(SOURCES src/mainapp.cpp src/Student.cpp)
 #but with GLOB is all much easier; include in the build all the content filtered by the pattern
-file(GLOB SOURCES "*.cpp")
+file(GLOB_RECURSE SOURCES "*.cpp")
+
+# HANDLE HEADER FILES
+
+# handle hpp of the main
+file(GLOB_RECURSE HEADERS "../../main/include/*.hpp")
+get_filename_component(HEADER_MAIN_ROOTDIR "../../src/main/include" REALPATH BASE_DIR "${CMAKE_BINARY_DIR}")
+message(STATUS "${BoldCyan}TESTING: Main Header file should all be located in: ${buildDirRelFilePath}${ColorReset}")
+SUBDIRLIST(HEADER_MAIN_SUBDIRS ${HEADER_MAIN_ROOTDIR})
+message(STATUS "${BoldCyan}TESTING: Directories where main headers are found: ../../main/include;${HEADER_MAIN_SUBDIRS}${ColorReset}")
+FOREACH(subdir ${HEADER_MAIN_SUBDIRS})
+    include_directories(${subdir})
+ENDFOREACH()
+include_directories("../../main/include")
+#handle hpp of the test
+file(GLOB_RECURSE HEADERS "../include/*.hpp")
+get_filename_component(HEADER_TEST_ROOTDIR "../../src/test/include" REALPATH BASE_DIR "${CMAKE_BINARY_DIR}")
+message(STATUS "${BoldCyan}TESTING: Test Header file should all be located in: ${buildDirRelFilePath}${ColorReset}")
+SUBDIRLIST(HEADER_TEST_SUBDIRS ${HEADER_TEST_ROOTDIR})
+message(STATUS "${BoldCyan}TESTING: Directories where test headers are found: ../include;${HEADER_TEST_SUBDIRS}${ColorReset}")
+FOREACH(subdir ${HEADER_TEST_SUBDIRS})
+    include_directories(${subdir})
+ENDFOREACH()
+include_directories("../include")
+
+# SET THE OUTPUT TYPE OF THIS PROJECT
 
 
 add_executable(${TEST_NAME} ${SOURCES})
@@ -47,4 +70,3 @@ add_custom_target(FinalMessage ALL
     COMMENT "Final Message" 
 )
 add_dependencies(FinalMessage ${TEST_NAME} )
-
