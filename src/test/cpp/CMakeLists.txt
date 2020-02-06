@@ -70,3 +70,4 @@ add_custom_target(FinalMessage ALL
     COMMENT "Final Message" 
 )
 add_dependencies(FinalMessage ${TEST_NAME} )
+

@@ -75,7 +75,7 @@ set(THEPROJECT_DEBUG_LOG_LEVEL "3")
 
 # The -std version flag you want to use for compiling this project. Default to c++11
 # See man gcc for further information (go to -std man page)
-set(THEPROJECT_CPP_STANDARD "c++14")
+set(THEPROJECT_CPP_STANDARD "c++17")
 
 # Set of -D definitions to add to the build of both main/test debug/release
 # Use -D to add a new definition, -U to remove a definition. Defaults to nothing
@@ -128,7 +128,8 @@ set(CMAKE_FILE_ALTERED_COMMAND "")
 # - 1.8: added Catch framework in test, log default to 3, improve documentation, add library names and apt-get, include cpp/include recusrive search
 # - 1.9: allow developer to change -std flag, add definition and compile flags without touching cmake files
 # - 1.10: -std flag default from c++11 to c++14
-set(CMAKE_FILE_BUILDING_PROCESS_VERSION "1.10")
+# - 1.11: -std flag default from c++14 to c++17
+set(CMAKE_FILE_BUILDING_PROCESS_VERSION "1.11")
 
 #The place where all the stuff created by "sudo make install" will be positioned"
 #Leave it if you don't want to change the behaviour. Can be overriden by U_INSTALL_DIRECTORY. For example: "-DU_INSTALL_DIRECTORY=~/usr"
