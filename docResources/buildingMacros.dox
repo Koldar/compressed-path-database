@@ -1,0 +1,28 @@
+@page buildingMacros Building Macros
+
+Building Macros
+===============
+
+We can enable several macros during building time. Here's a brief summary of it
+
+USE_CUT_ORDER
+-------------
+
+If not enable, we will use a DFS to generate an ordering of the vertices.
+
+EXTRACT_ALL_AT_ONCE
+-------------------
+
+The macro is used to tune the behaviour of function GetPath.
+
+If EXTRACT_ALL_AT_ONCE is enabled, the function will extract the optimal path immediately.
+So, after a single call of ::GetPath, you will have a sequenc eof location representing the path you
+need to perform to go from the start till the target point.
+Furthermore, the function will always return true; 
+ 
+If EXTRACT_ALL_AT_ONCE is disabled, the function will extract only one optimal cell at each call. 
+In order to fetch the entire optimal path, you will need to perform several ::GetPath calls, each with the starting point
+updated to the new location.
+
+In my opinion this is a design flaw: it would be so much better to just have 2 different functions (hell, one might be an iterator
+as well).

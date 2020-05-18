@@ -1,0 +1,44 @@
+Scenario Layout
+===============
+
+The scenario file is essential to store the queries of path planning we need to solve
+
+Header
+------
+
+The header specifies the version of the scenario. It is of the form.
+
+```
+version 1
+```
+
+The body columns number and semantic depends on the version of the file
+
+Body (version 0)
+----------------
+
+The body is a tabular separated values table. The columns are as follows:
+
+@li bucket: 
+@li map: the map the query should be operated on;
+@li xs: the x of the cell the start position is located;
+@li ys: the y of the cell the start position is lcoated;
+@li xg: the x of the cell we need to reach;
+@li yg: the y of the cell we need to reach;
+@li dist: the euclidean distacne between start and goal;
+
+
+Body (version 1.0)
+------------------
+
+The body is a tabular separated values table. The columns are as follows:
+
+@li bucket: 
+@li map: the map the query should be operated on;
+@li sizeX: the width of the map;
+@li sizeY: the height of the map;
+@li xs: the x of the cell the start position is located;
+@li ys: the y of the cell the start position is lcoated;
+@li xg: the x of the cell we need to reach;
+@li yg: the y of the cell we need to reach;
+@li dist: the euclidean distacne between start and goal;

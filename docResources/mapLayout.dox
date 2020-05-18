@@ -1,0 +1,35 @@
+Map File
+========
+
+A map file is laid down as follows:
+
+@li header: some speicfication of the map
+@li body: data containing the actual map
+
+Header
+------
+
+@li `type octile` required line;
+@li `height Y` the height of the map;
+@li `width X` the width of the map;
+@li `map` limits the headeer from the body;
+
+Body
+----
+
+Each cell is a character. Accepted characters are:
+
+@li " ": they are ignored;
+@li ".": traversable cell;
+@li "@" (or any other character): untraversable cell;
+@li "S": traversable cell which is the starting point of our path;
+@li "G": traversable cell which is the location we want to reach;
+
+Map Layout
+==========
+
+Internally, a map is just a `std::vector<bool>`. Each position can be mapped as follows:
+
+```
+map[y*width+x]; //content of the cell of height y and width x
+```
